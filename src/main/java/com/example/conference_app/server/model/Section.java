@@ -1,6 +1,5 @@
 package com.example.conference_app.server.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +19,6 @@ public class Section extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "conference_id")
-    @JsonIgnore
     private Conference conference;
 
 }

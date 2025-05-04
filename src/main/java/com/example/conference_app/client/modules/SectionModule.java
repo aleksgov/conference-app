@@ -2,223 +2,129 @@ package com.example.conference_app.client.modules;
 
 import com.example.conference_app.server.model.Conference;
 import com.example.conference_app.server.model.Section;
-import org.springframework.web.client.RestTemplate;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SectionModule extends JPanel {
-    private static final String SECTIONS_URL = "http://localhost:8080/api/sections";
-    private static final String CONFERENCES_URL = "http://localhost:8080/api/conferences";
-    private final RestTemplate restTemplate = new RestTemplate();
-    private final DefaultTableModel tableModel = new DefaultTableModel();
-    private Map<Long, String> conferenceCache = new HashMap<>();
+public class SectionModule extends BaseModule<Section> {
+    private final Map<Long, String> conferenceCache = new HashMap<>();
 
     public SectionModule() {
-        initializeUI();
+        super("http://localhost:8080/api/sections");
         loadConferencesCache();
-        loadSections();
-    }
-
-    private void initializeUI() {
-        setLayout(new BorderLayout());
-        initTable();
-        initToolbar();
-    }
-
-    private void initTable() {
-        tableModel.addColumn("ID");
-        tableModel.addColumn("Name");
-        tableModel.addColumn("Start Time");
-        tableModel.addColumn("End Time");
-        tableModel.addColumn("Conference");
-
-        JTable table = new JTable(tableModel);
-        table.setAutoCreateRowSorter(true);
-        add(new JScrollPane(table), BorderLayout.CENTER);
-    }
-
-    private void initToolbar() {
-        JToolBar toolBar = new JToolBar();
-
-        toolBar.add(createButton("Refresh", this::loadSections));
-        toolBar.add(createButton("Add", this::showAddDialog));
-        toolBar.add(createButton("Delete", this::deleteSection));
-        toolBar.add(createButton("Details", this::showDetailsDialog));
-
-        add(toolBar, BorderLayout.NORTH);
-    }
-
-    private JButton createButton(String text, Runnable action) {
-        JButton button = new JButton(text);
-        button.addActionListener((ActionEvent e) -> action.run());
-        return button;
-    }
-
-    private void loadSections() {
-        SwingWorker<Section[], Void> worker = new SwingWorker<>() {
-            @Override
-            protected Section[] doInBackground() {
-                return restTemplate.getForObject(SECTIONS_URL, Section[].class);
-            }
-
-            @Override
-            protected void done() {
-                try {
-                    tableModel.setRowCount(0);
-                    for (Section section : get()) {
-                        String conferenceInfo = "No Conference";
-                        if (section.getConference() != null) {
-                            conferenceInfo = conferenceCache.getOrDefault(
-                                    section.getConference().getConferenceId(),
-                                    "Unknown Conference"
-                            );
-                        }
-                        tableModel.addRow(new Object[]{
-                                section.getId(),
-                                section.getName(),
-                                section.getStartTime(),
-                                section.getEndTime(),
-                                conferenceInfo
-                        });
-                    }
-                } catch (Exception ex) {
-                    showError("Error loading sections: " + ex.getMessage());
-                }
-            }
-        };
-        worker.execute();
+        loadAll();
     }
 
     private void loadConferencesCache() {
-        Conference[] conferences = restTemplate.getForObject(CONFERENCES_URL, Conference[].class);
         conferenceCache.clear();
-        if (conferences != null) {
-            for (Conference conf : conferences) {
-                conferenceCache.put(
-                        conf.getConferenceId(),
-                        conf.getConferenceId() + ": " + conf.getName()
-                );
+        Conference[] arr = rest.getForObject("http://localhost:8080/api/conferences", Conference[].class);
+        if (arr!=null) {
+            for (Conference c : arr) {
+                conferenceCache.put(c.getConferenceId(),
+                        c.getConferenceId() + ": " + c.getName());
             }
         }
     }
 
-    private void showAddDialog() {
-        JDialog dialog = new JDialog((Frame) null, "New Section", true);
-        dialog.setLayout(new GridLayout(0, 2, 5, 5));
+    @Override
+    protected Class<Section[]> entityArrayType() {
+        return Section[].class;
+    }
 
-        JTextField nameField = new JTextField();
-        JTextField startTimeField = new JTextField();
-        JTextField endTimeField = new JTextField();
-        JComboBox<String> conferenceCombo = new JComboBox<>(
+    @Override
+    protected Class<Section> entityType() {
+        return Section.class;
+    }
+
+    @Override
+    protected void configureColumns(DefaultTableModel m) {
+        m.addColumn("ID");
+        m.addColumn("Name");
+        m.addColumn("Start Time");
+        m.addColumn("End Time");
+        m.addColumn("Conference");
+    }
+
+    @Override
+    protected Object[] toRow(Section s) {
+        String conf = (s.getConference() != null)
+                ? s.getConference().getName()
+                : "—";
+        return new Object[]{
+                s.getId(), s.getName(),
+                s.getStartTime(), s.getEndTime(),
+                conf
+        };
+    }
+
+    @Override
+    protected String detailsText(Section s) {
+        String confName = (s.getConference()!=null) ? s.getConference().getName() : "None";
+        return  "ID: " + s.getId() + "\n" +
+                "Name: " + s.getName() + "\n" +
+                "Start time: " + s.getStartTime() + "\n" +
+                "End time: " + s.getEndTime()   + "\n" +
+                "Conference: " + confName;
+    }
+
+    @Override
+    protected void showAddDialog() {
+        JDialog dlg = new JDialog((Frame)null, "New Section", true);
+        dlg.setLayout(new GridLayout(0,2,5,5));
+
+        JTextField nameF = new JTextField();
+        JTextField startF = new JTextField();
+        JTextField endF   = new JTextField();
+
+        JComboBox<String> combo = new JComboBox<>(
                 conferenceCache.values().toArray(new String[0])
         );
 
-        dialog.add(new JLabel("Name:"));
-        dialog.add(nameField);
-        dialog.add(new JLabel("Start Time (HH:mm):"));
-        dialog.add(startTimeField);
-        dialog.add(new JLabel("End Time (HH:mm):"));
-        dialog.add(endTimeField);
-        dialog.add(new JLabel("Conference:"));
-        dialog.add(conferenceCombo);
+        dlg.add(new JLabel("Name:"));       dlg.add(nameF);
+        dlg.add(new JLabel("Start (HH:mm):")); dlg.add(startF);
+        dlg.add(new JLabel("End (HH:mm):")); dlg.add(endF);
+        dlg.add(new JLabel("Conference:")); dlg.add(combo);
 
-        JButton submit = new JButton("Save");
-        submit.addActionListener(e -> {
+        JButton save = new JButton("Save");
+        save.addActionListener(e -> {
             try {
-                Section section = new Section();
-                section.setName(nameField.getText());
-                section.setStartTime(LocalTime.parse(startTimeField.getText()));
-                section.setEndTime(LocalTime.parse(endTimeField.getText()));
+                Section s = new Section();
+                s.setName(nameF.getText());
+                s.setStartTime(LocalTime.parse(startF.getText()));
+                s.setEndTime(LocalTime.parse(endF.getText()));
 
-                String selectedConference = (String) conferenceCombo.getSelectedItem();
-                Long conferenceId = Long.parseLong(selectedConference.split(":")[0]);
-                Conference conference = restTemplate.getForObject(
-                        CONFERENCES_URL + "/" + conferenceId, Conference.class
+                String sel = (String) combo.getSelectedItem();
+                Long cid = Long.parseLong(sel.split(":")[0]);
+                Conference c = rest.getForObject(
+                        "http://localhost:8080/api/conferences/" + cid,
+                        Conference.class
                 );
-                if (conference == null) {
-                    showError("Selected conference not found!");
-                    return;
-                }
-                section.setConference(conference);
+                s.setConference(c);
 
-                restTemplate.postForObject(SECTIONS_URL, section, Section.class);
+                rest.postForObject(getBaseUrl(), s, Section.class);
+                dlg.dispose();
                 loadConferencesCache();
-                loadSections();
-                dialog.dispose();
+                loadAll();
             } catch (Exception ex) {
-                showError("Invalid data format: " + ex.getMessage());
+                showError("Bad data: " + ex.getMessage());
             }
         });
+        dlg.add(save);
 
-        dialog.add(submit);
-        dialog.add(createCancelButton(dialog));
-        dialog.pack();
-        dialog.setLocationRelativeTo(this);
-        dialog.setVisible(true);
+        JButton cancel = new JButton("Cancel");
+        cancel.addActionListener(e -> dlg.dispose());
+        dlg.add(cancel);
+
+        dlg.pack();
+        dlg.setLocationRelativeTo(this);
+        dlg.setVisible(true);
     }
 
-    private void deleteSection() {
-        JScrollPane scroll = (JScrollPane) getComponent(0);
-        JTable table = (JTable) scroll.getViewport().getView();
-
-        int selectedRow = table.getSelectedRow();
-        if (selectedRow == -1) {
-            showError("Please select a section first");
-            return;
-        }
-
-        int modelRow = table.convertRowIndexToModel(selectedRow);
-        Long id = (Long) tableModel.getValueAt(modelRow, 0);
-
-        restTemplate.delete(SECTIONS_URL + "/" + id);
-        loadSections();
-    }
-
-    private void showDetailsDialog() {
-        JScrollPane scroll = (JScrollPane) getComponent(0);
-        JTable table = (JTable) scroll.getViewport().getView();
-
-        int viewRow = table.getSelectedRow();
-        if (viewRow == -1) {
-            showError("Please select a section first");
-            return;
-        }
-
-        int modelRow = table.convertRowIndexToModel(viewRow);
-        Long id = (Long) tableModel.getValueAt(modelRow, 0);
-
-        Section section = restTemplate.getForObject(SECTIONS_URL + "/" + id, Section.class);
-        if (section == null) {
-            showError("Section not found or could not be loaded.");
-            return;
-        }
-
-        JOptionPane.showMessageDialog(
-                this,
-                "Section Details:\n\n" +
-                        "ID: " + section.getId() + "\n" +
-                        "Name: " + section.getName() + "\n" +
-                        "Start Time: " + section.getStartTime() + "\n" +
-                        "End Time: " + section.getEndTime() + "\n" +
-                        "Conference: " + section.getConference().getName(),
-                "Section Details",
-                JOptionPane.INFORMATION_MESSAGE
-        );
-    }
-
-    private JButton createCancelButton(JDialog dialog) {
-        JButton button = new JButton("Cancel");
-        button.addActionListener(e -> dialog.dispose());
-        return button;
-    }
-
-    private void showError(String message) {
-        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+    private String getBaseUrl() {
+        return "http://localhost:8080/api/sections";
     }
 }

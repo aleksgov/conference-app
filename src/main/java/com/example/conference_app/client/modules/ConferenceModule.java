@@ -1,179 +1,93 @@
 package com.example.conference_app.client.modules;
 
 import com.example.conference_app.server.model.Conference;
-import org.springframework.web.client.RestTemplate;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.time.LocalDate;
 
-public class ConferenceModule extends JPanel {
-    private static final String BASE_URL = "http://localhost:8080/api/conferences";
-    private final RestTemplate restTemplate = new RestTemplate();
-    private final DefaultTableModel tableModel = new DefaultTableModel();
+public class ConferenceModule extends BaseModule<Conference> {
 
     public ConferenceModule() {
-        initializeUI();
-        loadConferences();
+        super("http://localhost:8080/api/conferences");
     }
 
-    private void initializeUI() {
-        setLayout(new BorderLayout());
-        initTable();
-        initToolbar();
+    @Override
+    protected Class<Conference[]> entityArrayType() {
+        return Conference[].class;
     }
 
-    private void initTable() {
-        tableModel.addColumn("ID");
-        tableModel.addColumn("Name");
-        tableModel.addColumn("Start Date");
-        tableModel.addColumn("End Date");
-
-        JTable table = new JTable(tableModel);
-        table.setAutoCreateRowSorter(true);
-        add(new JScrollPane(table), BorderLayout.CENTER);
+    @Override
+    protected Class<Conference> entityType() {
+        return Conference.class;
     }
 
-    private void initToolbar() {
-        JToolBar toolBar = new JToolBar();
-
-        toolBar.add(createButton("Refresh", this::loadConferences));
-        toolBar.add(createButton("Add", this::showAddDialog));
-        toolBar.add(createButton("Delete", this::deleteConference));
-        toolBar.add(createButton("Details", this::showDetailsDialog));
-
-        add(toolBar, BorderLayout.NORTH);
+    @Override
+    protected void configureColumns(DefaultTableModel m) {
+        m.addColumn("ID");
+        m.addColumn("Name");
+        m.addColumn("Start Date");
+        m.addColumn("End Date");
     }
 
-    private JButton createButton(String text, Runnable action) {
-        JButton button = new JButton(text);
-        button.addActionListener((ActionEvent e) -> action.run());
-        return button;
-    }
-
-    private void loadConferences() {
-        SwingWorker<Conference[], Void> worker = new SwingWorker<>() {
-            @Override
-            protected Conference[] doInBackground() {
-                return restTemplate.getForObject(BASE_URL, Conference[].class);
-            }
-
-            @Override
-            protected void done() {
-                try {
-                    tableModel.setRowCount(0);
-                    for (Conference conf : get()) {
-                        tableModel.addRow(new Object[]{
-                                conf.getConferenceId(),
-                                conf.getName(),
-                                conf.getStartDate(),
-                                conf.getEndDate()
-                        });
-                    }
-                } catch (Exception ex) {
-                    showError("Error loading conferences: " + ex.getMessage());
-                }
-            }
+    @Override
+    protected Object[] toRow(Conference c) {
+        return new Object[]{
+                c.getConferenceId(),
+                c.getName(),
+                c.getStartDate(),
+                c.getEndDate()
         };
-        worker.execute();
     }
 
-    private void showAddDialog() {
-        JDialog dialog = new JDialog((Frame) null, "New Conference", true);
-        dialog.setLayout(new GridLayout(0, 2, 5, 5));
+    @Override
+    protected String detailsText(Conference c) {
+        return  "ID: " + c.getConferenceId() + "\n" +
+                "Name: " + c.getName() + "\n" +
+                "Start: " + c.getStartDate() + "\n" +
+                "End: " + c.getEndDate();
+    }
 
-        JTextField nameField = new JTextField();
-        JTextField startDateField = new JTextField();
-        JTextField endDateField = new JTextField();
+    @Override
+    protected void showAddDialog() {
+        JDialog dlg = new JDialog((Frame)null, "New Conference", true);
+        dlg.setLayout(new GridLayout(0,2,5,5));
 
-        dialog.add(new JLabel("Name:"));
-        dialog.add(nameField);
-        dialog.add(new JLabel("Start Date (yyyy-MM-dd):"));
-        dialog.add(startDateField);
-        dialog.add(new JLabel("End Date (yyyy-MM-dd):"));
-        dialog.add(endDateField);
+        JTextField nameF = new JTextField();
+        JTextField startF = new JTextField();
+        JTextField endF   = new JTextField();
 
-        JButton submit = new JButton("Save");
-        submit.addActionListener(e -> {
+        dlg.add(new JLabel("Name:"));        dlg.add(nameF);
+        dlg.add(new JLabel("Start (YYYY-MM-DD):")); dlg.add(startF);
+        dlg.add(new JLabel("End (YYYY-MM-DD):")); dlg.add(endF);
+
+        JButton save = new JButton("Save");
+        save.addActionListener(e -> {
             try {
-                Conference conference = new Conference();
-                conference.setName(nameField.getText());
-                conference.setStartDate(LocalDate.parse(startDateField.getText()));
-                conference.setEndDate(LocalDate.parse(endDateField.getText()));
-
-                restTemplate.postForObject(BASE_URL, conference, Conference.class);
-                loadConferences();
-                dialog.dispose();
+                Conference c = new Conference();
+                c.setName(nameF.getText());
+                c.setStartDate(LocalDate.parse(startF.getText()));
+                c.setEndDate(LocalDate.parse(endF.getText()));
+                rest.postForObject(getBaseUrl(), c, Conference.class);
+                dlg.dispose();
+                loadAll();
             } catch (Exception ex) {
-                showError("Invalid data format: " + ex.getMessage());
+                showError("Bad data: " + ex.getMessage());
             }
         });
+        dlg.add(save);
 
-        dialog.add(submit);
-        dialog.add(createCancelButton(dialog));
-        dialog.pack();
-        dialog.setLocationRelativeTo(this);
-        dialog.setVisible(true);
+        JButton cancel = new JButton("Cancel");
+        cancel.addActionListener(e -> dlg.dispose());
+        dlg.add(cancel);
+
+        dlg.pack();
+        dlg.setLocationRelativeTo(this);
+        dlg.setVisible(true);
     }
 
-    private void deleteConference() {
-        JScrollPane scroll = (JScrollPane) getComponent(0);
-        JTable table = (JTable) scroll.getViewport().getView();
-
-        int selectedRow = table.getSelectedRow();
-        if (selectedRow == -1) {
-            showError("Please select a conference first");
-            return;
-        }
-
-        int modelRow = table.convertRowIndexToModel(selectedRow);
-        Long id = (Long) tableModel.getValueAt(modelRow, 0);
-
-        restTemplate.delete(BASE_URL + "/" + id);
-        loadConferences();
-    }
-
-
-    private void showDetailsDialog() {
-        JScrollPane scroll = (JScrollPane) getComponent(0);
-        JTable table = (JTable) scroll.getViewport().getView();
-
-        int viewRow = table.getSelectedRow();
-        if (viewRow == -1) {
-            showError("Please select a conference first");
-            return;
-        }
-
-        int modelRow = table.convertRowIndexToModel(viewRow);
-        Long id = (Long) tableModel.getValueAt(modelRow, 0);
-
-        Conference conference = restTemplate.getForObject(BASE_URL + "/" + id, Conference.class);
-        if (conference == null) {
-            showError("Conference not found or could not be loaded.");
-            return;
-        }
-
-        JOptionPane.showMessageDialog(
-                this,
-                "Conference Details:\n\n" +
-                        "ID: " + conference.getConferenceId() + "\n" +
-                        "Name: " + conference.getName() + "\n" +
-                        "Start: " + conference.getStartDate() + "\n" +
-                        "End: " + conference.getEndDate(),
-                "Conference Details",
-                JOptionPane.INFORMATION_MESSAGE
-        );
-    }
-
-    private JButton createCancelButton(JDialog dialog) {
-        JButton button = new JButton("Cancel");
-        button.addActionListener(e -> dialog.dispose());
-        return button;
-    }
-
-    private void showError(String message) {
-        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+    private String getBaseUrl() {
+        return "http://localhost:8080/api/conferences";
     }
 }

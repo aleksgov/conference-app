@@ -15,19 +15,16 @@ public class ParticipantArticleController {
     @Autowired
     private ParticipantArticleService participantArticleService;
 
-    // Получить все связи участник-статья
     @GetMapping
     public List<ParticipantArticle> getAllParticipantArticles() {
-        return participantArticleService.getAllParticipantArticles();
+        return participantArticleService.getAll();
     }
 
-    // Создать новую связь участник-статья
     @PostMapping
     public ParticipantArticle createParticipantArticle(@RequestBody ParticipantArticle participantArticle) {
-        return participantArticleService.createParticipantArticle(participantArticle);
+        return participantArticleService.create(participantArticle);
     }
 
-    // Удалить связь участник-статья по ID участника и статьи
     @DeleteMapping
     public ResponseEntity<Void> deleteParticipantArticle(
             @RequestParam Long participantId,

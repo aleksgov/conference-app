@@ -52,7 +52,7 @@ public class SectionModule extends BaseModule<Section> {
     @Override
     protected Object[] toRow(Section s) {
         String conf = (s.getConference() != null)
-                ? s.getConference().getName()
+                ? conferenceCache.getOrDefault(s.getConference().getConferenceId(), "Unknown")
                 : "—";
         return new Object[]{
                 s.getId(), s.getName(),

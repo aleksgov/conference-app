@@ -1,5 +1,6 @@
 package com.example.conference_app.server.service;
 
+import com.example.conference_app.server.model.BaseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -19,6 +20,16 @@ public abstract class BaseService<T, ID> {
     }
 
     public T create(T entity) {
+        return repository.save(entity);
+    }
+
+    public T update(ID id, T entity) {
+        if (!repository.existsById(id)) {
+            throw new RuntimeException("Entity not found, id=" + id);
+        }
+        if (entity instanceof BaseEntity) {
+            ((BaseEntity) entity).setId((Long) id);
+        }
         return repository.save(entity);
     }
 

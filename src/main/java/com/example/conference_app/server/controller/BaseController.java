@@ -28,6 +28,15 @@ public abstract class BaseController<T, ID> {
         return service.create(entity);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<T> update(
+            @PathVariable ID id,
+            @RequestBody T entity
+    ) {
+        T updated = service.update(id, entity);
+        return ResponseEntity.ok(updated);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable ID id) {
         service.delete(id);

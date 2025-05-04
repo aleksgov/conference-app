@@ -27,7 +27,8 @@ public abstract class BaseModule<T> extends JPanel {
         // тулбар
         JToolBar toolBar = new JToolBar();
         toolBar.add(createButton("Refresh", this::loadAll));
-        toolBar.add(createButton("Add",   this::showAddDialog));
+        toolBar.add(createButton("Add", this::showAddDialog));
+        toolBar.add(createButton("Edit", this::showEditDialog));
         toolBar.add(createButton("Delete", this::deleteSelected));
         toolBar.add(createButton("Details", this::showDetails));
         add(toolBar, BorderLayout.NORTH);
@@ -97,6 +98,8 @@ public abstract class BaseModule<T> extends JPanel {
             showError(ex.getMessage());
         }
     }
+
+    protected abstract void showEditDialog();
 
     // получить ID из первой колонки
     protected Long getSelectedId() {

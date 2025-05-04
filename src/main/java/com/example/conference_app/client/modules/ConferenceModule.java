@@ -87,6 +87,54 @@ public class ConferenceModule extends BaseModule<Conference> {
         dlg.setVisible(true);
     }
 
+    @Override protected void showEditDialog() {
+        try {
+            Long id = getSelectedId();
+            Conference orig = rest.getForObject(getBaseUrl() + "/" + id, Conference.class);
+            if (orig == null) {
+                showError("Entity not found");
+                return;
+            }
+
+            JDialog dlg = new JDialog((Frame)null, "Edit Conference", true);
+            dlg.setLayout(new GridLayout(0,2,5,5));
+
+            JTextField nameF = new JTextField(orig.getName());
+            JTextField startF = new JTextField(orig.getStartDate().toString());
+            JTextField endF   = new JTextField(orig.getEndDate().toString());
+
+            dlg.add(new JLabel("Name:"));        dlg.add(nameF);
+            dlg.add(new JLabel("Start (YYYY-MM-DD):")); dlg.add(startF);
+            dlg.add(new JLabel("End (YYYY-MM-DD):")); dlg.add(endF);
+
+            JButton save = new JButton("Save");
+            save.addActionListener(ev -> {
+                try {
+                    orig.setName(nameF.getText());
+                    orig.setStartDate(LocalDate.parse(startF.getText()));
+                    orig.setEndDate(LocalDate.parse(endF.getText()));
+                    rest.put(getBaseUrl() + "/" + id, orig);
+                    dlg.dispose();
+                    loadAll();
+                } catch (Exception ex) {
+                    showError("Bad data: " + ex.getMessage());
+                }
+            });
+            dlg.add(save);
+
+            JButton cancel = new JButton("Cancel");
+            cancel.addActionListener(ev -> dlg.dispose());
+            dlg.add(cancel);
+
+            dlg.pack();
+            dlg.setLocationRelativeTo(this);
+            dlg.setVisible(true);
+
+        } catch (RuntimeException ex) {
+            showError(ex.getMessage());
+        }
+    }
+
     private String getBaseUrl() {
         return "http://localhost:8080/api/conferences";
     }

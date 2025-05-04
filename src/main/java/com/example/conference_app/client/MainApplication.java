@@ -19,7 +19,7 @@ public class MainApplication extends JFrame {
 
         JTabbedPane tabbedPane = new JTabbedPane();
 
-        // Добавление модулей
+        // добавление модулей
         tabbedPane.addTab("Conferences", new ConferenceModule());
         tabbedPane.addTab("Sections", new SectionModule());
 

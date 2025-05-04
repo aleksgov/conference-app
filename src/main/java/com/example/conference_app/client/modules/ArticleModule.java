@@ -1,6 +1,6 @@
 package com.example.conference_app.client.modules;
 
-import com.example.conference_app.server.model.Auditorium;
+import com.example.conference_app.server.model.Article;
 import com.example.conference_app.server.model.Section;
 
 import javax.swing.*;
@@ -9,11 +9,11 @@ import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AuditoriumModule extends BaseModule<Auditorium> {
+public class ArticleModule extends BaseModule<Article> {
     private final Map<Long, String> sectionCache = new HashMap<>();
 
-    public AuditoriumModule() {
-        super("http://localhost:8080/api/auditoriums");
+    public ArticleModule() {
+        super("http://localhost:8080/api/articles");
         loadSectionsCache();
         loadAll();
     }
@@ -32,55 +32,90 @@ public class AuditoriumModule extends BaseModule<Auditorium> {
     }
 
     @Override
-    protected Class<Auditorium[]> entityArrayType() {
-        return Auditorium[].class;
+    protected Class<Article[]> entityArrayType() {
+        return Article[].class;
     }
     @Override
-    protected Class<Auditorium> entityType() {
-        return Auditorium.class;
+    protected Class<Article> entityType() {
+        return Article.class;
     }
 
     @Override
     protected void configureColumns(DefaultTableModel m) {
         m.addColumn("ID");
-        m.addColumn("Capacity");
+        m.addColumn("Name");
+        m.addColumn("Pages");
+        m.addColumn("Authors");
         m.addColumn("Section");
     }
 
     @Override
-    protected Object[] toRow(Auditorium a) {
-        String sec = a.getSection() != null
-                ? sectionCache.getOrDefault(a.getSection().getId(), "Unknown")
+    protected Object[] toRow(Article art) {
+        String sec = art.getSection() != null
+                ? sectionCache.getOrDefault(art.getSection().getId(), "Unknown")
                 : "—";
         return new Object[]{
-                a.getId(),
-                a.getCapacity(),
+                art.getId(),
+                art.getName(),
+                art.getPages(),
+                art.getAuthors(),
                 sec
         };
     }
 
     @Override
-    protected String detailsText(Auditorium a) {
-        String secName = a.getSection() != null ? a.getSection().getName() : "None";
-        return  "ID: " + a.getId() + "\n" +
-                "Capacity: " + a.getCapacity() + "\n" +
-                "Section: " + secName;
+    protected String detailsText(Article art) {
+        String secName = art.getSection() != null ? art.getSection().getName() : "None";
+        return
+            "ID: " + art.getId() + "\n" +
+            "Name: " + art.getName() + "\n" +
+            "Pages: " + art.getPages() + "\n" +
+            "Authors: " + art.getAuthors() + "\n" +
+            "Section: " + secName;
     }
 
     @Override
     protected void showAddDialog() {
-        JDialog dlg = new JDialog((Frame)null, "New Auditorium", true);
+        JDialog dlg = new JDialog((Frame)null, "New Article", true);
         dlg.setLayout(new GridLayout(0,2,5,5));
 
-        JTextField capF = new JTextField();
+        JTextField nameF = new JTextField();
+        JTextField pagesF = new JTextField();
+        JTextField authorsF = new JTextField();
         JComboBox<String> combo = new JComboBox<>(
                 sectionCache.values().toArray(new String[0])
         );
 
-        dlg.add(new JLabel("Capacity:")); dlg.add(capF);
-        dlg.add(new JLabel("Section:"));  dlg.add(combo);
+        dlg.add(new JLabel("Name:")); dlg.add(nameF);
+        dlg.add(new JLabel("Pages:")); dlg.add(pagesF);
+        dlg.add(new JLabel("Authors:")); dlg.add(authorsF);
+        dlg.add(new JLabel("Section:")); dlg.add(combo);
 
-        JButton save = getJButton(capF, combo, dlg);
+        JButton save = new JButton("Save");
+        save.addActionListener(e -> {
+            try {
+                Article art = new Article();
+                art.setName(nameF.getText());
+                art.setPages(Integer.parseInt(pagesF.getText()));
+                art.setAuthors(authorsF.getText());
+
+                String sel = (String) combo.getSelectedItem();
+                if (sel == null || !sel.contains(":")) {
+                    showError("Please select a section");
+                    return;
+                }
+                Long sid = Long.parseLong(sel.split(":")[0]);
+                Section sec = rest.getForObject(getSectionUrl() + "/" + sid, Section.class);
+                art.setSection(sec);
+
+                rest.postForObject(getBaseUrl(), art, Article.class);
+                dlg.dispose();
+                loadSectionsCache();
+                loadAll();
+            } catch (Exception ex) {
+                showError("Bad data: " + ex.getMessage());
+            }
+        });
         dlg.add(save);
 
         JButton cancel = new JButton("Cancel");
@@ -92,47 +127,22 @@ public class AuditoriumModule extends BaseModule<Auditorium> {
         dlg.setVisible(true);
     }
 
-    private JButton getJButton(JTextField capF, JComboBox<String> combo, JDialog dlg) {
-        JButton save = new JButton("Save");
-        save.addActionListener(e -> {
-            try {
-                Auditorium a = new Auditorium();
-                a.setCapacity(Integer.parseInt(capF.getText()));
-
-                String sel = (String) combo.getSelectedItem();
-                if (sel == null || !sel.contains(":")) {
-                    showError("Please select a section");
-                    return;
-                }
-                Long sid = Long.parseLong(sel.split(":")[0]);
-                Section sec = rest.getForObject(getSectionUrl() + "/" + sid, Section.class);
-                a.setSection(sec);
-
-                rest.postForObject(getBaseUrl(), a, Auditorium.class);
-                dlg.dispose();
-                loadSectionsCache();
-                loadAll();
-            } catch (Exception ex) {
-                showError("Bad data: " + ex.getMessage());
-            }
-        });
-        return save;
-    }
-
     @Override
     protected void showEditDialog() {
         try {
             Long id = getSelectedId();
-            Auditorium orig = rest.getForObject(getBaseUrl() + "/" + id, Auditorium.class);
+            Article orig = rest.getForObject(getBaseUrl() + "/" + id, Article.class);
             if (orig == null) {
                 showError("Not found");
                 return;
             }
 
-            JDialog dlg = new JDialog((Frame)null, "Edit Auditorium", true);
+            JDialog dlg = new JDialog((Frame)null, "Edit Article", true);
             dlg.setLayout(new GridLayout(0,2,5,5));
 
-            JTextField capF = new JTextField(String.valueOf(orig.getCapacity()));
+            JTextField nameF = new JTextField(orig.getName());
+            JTextField pagesF = new JTextField(String.valueOf(orig.getPages()));
+            JTextField authorsF = new JTextField(orig.getAuthors());
             JComboBox<String> combo = new JComboBox<>(
                     sectionCache.values().toArray(new String[0])
             );
@@ -141,13 +151,18 @@ public class AuditoriumModule extends BaseModule<Auditorium> {
                 combo.setSelectedItem(key);
             }
 
-            dlg.add(new JLabel("Capacity:")); dlg.add(capF);
-            dlg.add(new JLabel("Section:"));  dlg.add(combo);
+            dlg.add(new JLabel("Name:"));      dlg.add(nameF);
+            dlg.add(new JLabel("Pages:"));     dlg.add(pagesF);
+            dlg.add(new JLabel("Authors:"));   dlg.add(authorsF);
+            dlg.add(new JLabel("Section:"));   dlg.add(combo);
 
             JButton save = new JButton("Save");
             save.addActionListener(ev -> {
                 try {
-                    orig.setCapacity(Integer.parseInt(capF.getText()));
+                    orig.setName(nameF.getText());
+                    orig.setPages(Integer.parseInt(pagesF.getText()));
+                    orig.setAuthors(authorsF.getText());
+
                     String sel = (String) combo.getSelectedItem();
                     Long sid = Long.parseLong(sel.split(":")[0]);
                     Section sec = rest.getForObject(getSectionUrl() + "/" + sid, Section.class);
@@ -177,7 +192,7 @@ public class AuditoriumModule extends BaseModule<Auditorium> {
     }
 
     private String getBaseUrl() {
-        return "http://localhost:8080/api/auditoriums";
+        return "http://localhost:8080/api/articles";
     }
 
     private String getSectionUrl() {

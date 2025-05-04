@@ -102,7 +102,7 @@ public class SectionModule extends BaseModule<Section> {
                     return;
                 }
                 Long cid = Long.parseLong(sel.split(":")[0]);
-                Conference c = rest.getForObject(getConferenceUrl() + cid, Conference.class);
+                Conference c = rest.getForObject(getConferenceUrl() + "/" + cid, Conference.class);
                 s.setConference(c);
 
                 rest.postForObject(getBaseUrl(), s, Section.class);
@@ -166,7 +166,7 @@ public class SectionModule extends BaseModule<Section> {
                     }
                     String sel = selObj.toString();
                     Long cid = Long.parseLong(sel.split(":")[0]);
-                    Conference c = rest.getForObject(getConferenceUrl() + cid, Conference.class);
+                    Conference c = rest.getForObject(getConferenceUrl() + "/" + cid, Conference.class);
                     orig.setConference(c);
 
                     rest.put(getBaseUrl() + "/" + id, orig);

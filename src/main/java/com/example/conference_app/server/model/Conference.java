@@ -22,6 +22,6 @@ public class Conference {
     private LocalDate startDate;
     private LocalDate endDate;
 
-    @OneToMany(mappedBy = "conference", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "conference", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Section> sections = new ArrayList<>();
 }

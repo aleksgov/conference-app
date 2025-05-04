@@ -1,7 +1,6 @@
 package com.example.conference_app.client;
 
-import com.example.conference_app.client.modules.ConferenceModule;
-import com.example.conference_app.client.modules.SectionModule;
+import com.example.conference_app.client.modules.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,6 +21,11 @@ public class MainApplication extends JFrame {
         // добавление модулей
         tabbedPane.addTab("Conferences", new ConferenceModule());
         tabbedPane.addTab("Sections", new SectionModule());
+        tabbedPane.addTab("Auditoriums", new AuditoriumModule());
+        tabbedPane.addTab("Articles", new ArticleModule());
+        tabbedPane.addTab("Presentations", new PresentationModule());
+        tabbedPane.addTab("Participants", new ParticipantModule());
+
 
         add(tabbedPane, BorderLayout.CENTER);
     }

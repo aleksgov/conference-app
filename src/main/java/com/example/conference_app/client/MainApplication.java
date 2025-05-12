@@ -1,6 +1,7 @@
 package com.example.conference_app.client;
 
 import com.example.conference_app.client.modules.*;
+import com.formdev.flatlaf.FlatLightLaf;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,13 +27,19 @@ public class MainApplication extends JFrame {
         tabbedPane.addTab("Presentations", new PresentationModule());
         tabbedPane.addTab("Participants", new ParticipantModule());
 
-
         add(tabbedPane, BorderLayout.CENTER);
     }
 
     public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel( new FlatLightLaf() );
+        } catch( UnsupportedLookAndFeelException ex ) {
+            ex.printStackTrace();
+        }
+
         SwingUtilities.invokeLater(() -> {
             MainApplication app = new MainApplication();
+            app.setLocationRelativeTo(null);
             app.setVisible(true);
         });
     }

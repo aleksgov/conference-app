@@ -3,9 +3,13 @@ package com.example.conference_app.client.modules;
 import org.springframework.web.client.RestTemplate;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import java.awt.*;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.concurrent.ExecutionException;
 
 public abstract class BaseModule<T> extends JPanel {
@@ -21,7 +25,58 @@ public abstract class BaseModule<T> extends JPanel {
         // таблица
         configureColumns(model);
         table = new JTable(model);
+
+        // отключение сетки
+        table.setShowGrid(false);
+        table.setIntercellSpacing(new Dimension(0, 0));
+
+        // полосатые строки
+        table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(
+                    JTable tbl, Object value, boolean isSelected,
+                    boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(tbl, value, isSelected, hasFocus, row, column);
+                if (isSelected) {
+                    setBackground(tbl.getSelectionBackground());
+                    setForeground(tbl.getSelectionForeground());
+                } else {
+                    // четные строки – белые, нечётные - серые
+                    setBackground(row % 2 == 0 ? Color.WHITE : new Color(245, 245, 245));
+                    setForeground(Color.DARK_GRAY);
+                }
+                setBorder(noFocusBorder);
+                return this;
+            }
+        });
+
+        // скругление
+        JTableHeader hdr = table.getTableHeader();
+        hdr.setPreferredSize(new Dimension(hdr.getPreferredSize().width, 30));
+        hdr.setFont(hdr.getFont().deriveFont(Font.BOLD, 14f));
+        hdr.setDefaultRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(
+                    JTable tbl, Object value, boolean isSelected,
+                    boolean hasFocus, int row, int column) {
+                JLabel lbl = (JLabel) super.getTableCellRendererComponent(
+                        tbl, value, isSelected, hasFocus, row, column);
+                lbl.setHorizontalAlignment(CENTER);
+                lbl.setOpaque(true);
+                lbl.setBackground(new Color(239, 239, 239));
+                return lbl;
+            }
+        });
+
+        // высота строки, выделение, шрифт
+        table.setRowHeight(28);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        table.setSelectionBackground(new Color(100, 150, 220));
+        table.setSelectionForeground(Color.WHITE);
+
+        // автосортировка столбцов
         table.setAutoCreateRowSorter(true);
+
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         // тулбар
@@ -40,6 +95,30 @@ public abstract class BaseModule<T> extends JPanel {
     private JButton createButton(String text, Runnable action) {
         JButton b = new JButton(text);
         b.addActionListener(e -> action.run());
+
+        b.setFocusPainted(false);
+        b.setBorder(BorderFactory.createEmptyBorder(6, 12, 6, 12));
+        b.setContentAreaFilled(false);
+
+        // курсор при наведении
+        b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        b.setOpaque(true);
+        b.setBackground(new Color(66, 133, 244));   // основной фон
+        b.setForeground(Color.BLACK);               // текст
+
+        // эффект наведения
+        b.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                b.setBackground(new Color(52, 103, 189));
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                b.setBackground(new Color(66, 133, 244));
+            }
+        });
+
         return b;
     }
 

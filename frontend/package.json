@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
     "build": "vite build",
-    "start": "electron ."
+    "start": "electron .",
+    "server": "cd ../ && mvn spring-boot:run"
   },
   "dependencies": {
     "axios": "^1.9.0",

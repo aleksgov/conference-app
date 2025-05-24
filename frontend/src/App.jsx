@@ -1,18 +1,12 @@
-import { useEffect, useState } from 'react'
-import axios from 'axios'
+import LoginForm from "./components/LoginForm.jsx";
+import ThemeToggle from "./components/ThemeToggle.jsx";
 
 function App() {
-    const [message, setMessage] = useState("Загрузка...")
-
-    useEffect(() => {
-        axios.get('/status')
-            .then(response => setMessage(response.data))
-            .catch(() => setMessage("Ошибка подключения к серверу"))
-    }, [])
 
     return (
         <div>
-            <h1>{message}</h1>
+            <ThemeToggle />
+            <LoginForm />
         </div>
     )
 }

@@ -2,19 +2,8 @@ import React from 'react';
 
 const LoginForm = () => {
     return (
-        <section className="bg-gray-50 dark:bg-gray-900 min-h-screen w-full flex items-center justify-center p-6">
+        <section className="dark:bg-gray-900 w-full flex items-center justify-center p-6 h-[calc(100vh-4rem)]">
             <div className="w-full max-w-md lg:max-w-lg xl:max-w-xl">
-
-                <div className="text-center mb-8">
-                    <a href="#" className="flex items-center justify-center text-2xl font-semibold text-gray-900 dark:text-white">
-                        <img
-                            className="w-8 h-8 mr-2"
-                            src="/assets/science2.png"
-                            alt="logo"
-                        />
-                        Science Conference
-                    </a>
-                </div>
 
                 <div className="w-full bg-white rounded-lg shadow-xl dark:border dark:bg-gray-800 dark:border-gray-700 p-8">
                     <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white mb-6">
@@ -77,25 +66,25 @@ const LoginForm = () => {
                                 </div>
                             </div>
                             <a href="#" style={{ color: '#3b82f6' }} className="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500">Забыли пароль?</a>
-                </div>
+                        </div>
 
-                <button
-                    type="submit"
-                    className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                        <button
+                            type="submit"
+                            className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                         >
-                    Войти
-                </button>
+                            Войти
+                        </button>
 
-                <p className="text-sm font-light text-gray-500 dark:text-gray-400 text-center">
-                    Нет аккаунта?{' '}
-                    <a
-                        href="#"
-                        style={{ color: '#3b82f6' }}
-                        className="font-medium text-primary-600 hover:underline dark:text-primary-500"
-                    >
-                        Зарегистрироваться
-                    </a>
-                </p>
+                        <p className="text-sm font-light text-gray-500 dark:text-gray-400 text-center">
+                            Нет аккаунта?{' '}
+                            <a
+                                href="#"
+                                style={{ color: '#3b82f6' }}
+                                className="font-medium text-primary-600 hover:underline dark:text-primary-500"
+                            >
+                                Зарегистрироваться
+                            </a>
+                        </p>
                     </form>
                 </div>
             </div>

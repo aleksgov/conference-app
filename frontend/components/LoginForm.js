@@ -1,6 +1,6 @@
 import React from 'react';
 
-const LoginForm = () => {
+const LoginForm = (props) => {
     return (
         <section className="dark:bg-gray-900 w-full flex items-center justify-center p-6 h-[calc(100vh-4rem)]">
             <div className="w-full max-w-md lg:max-w-lg xl:max-w-xl">
@@ -22,7 +22,10 @@ const LoginForm = () => {
                                 type="email"
                                 name="email"
                                 id="email"
-                                className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg
+                                focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600
+                                block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400
+                                dark:text-white dark:focus:outline-none dark:focus:ring-2 dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 placeholder="name@company.com"
                                 required
                             />
@@ -40,7 +43,10 @@ const LoginForm = () => {
                                 name="password"
                                 id="password"
                                 placeholder="••••••••"
-                                className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg
+                                focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600
+                                block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400
+                                dark:text-white dark:focus:outline-none dark:focus:ring-2 dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 required
                             />
                         </div>
@@ -81,6 +87,10 @@ const LoginForm = () => {
                                 href="#"
                                 style={{ color: '#3b82f6' }}
                                 className="font-medium text-primary-600 hover:underline dark:text-primary-500"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    props.onSwitch();
+                                }}
                             >
                                 Зарегистрироваться
                             </a>

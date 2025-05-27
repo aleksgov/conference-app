@@ -18,7 +18,7 @@ export default function Navbar() {
         <nav className='navbar w-full px-20 py-3 shadow-lg bg-white dark:bg-slate-900 z-50'>
             <div className='flex items-center'>
                 <section className='nav-left font-bold mr-auto text-xl flex items-center gap-2'>
-                    <Logo className='w-6 h-6 text-gray-800 dark:text-white flex-shrink-0' />
+                    <Logo className='w-8 h-8 text-gray-800 dark:text-white flex-shrink-0' />
                     Conferva
                 </section>
                 <ul className='nav-links flex gap-10 items-center'>

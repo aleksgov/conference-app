@@ -1,3 +1,5 @@
+import withFlowbiteReact from "flowbite-react/plugin/nextjs";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     // Добавляем обработчик SVG
@@ -25,4 +27,4 @@ const nextConfig = {
     },
 };
 
-export default nextConfig;
+export default withFlowbiteReact(nextConfig);

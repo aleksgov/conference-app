@@ -5,22 +5,38 @@ import com.example.conference_app.server.dto.LoginResponse;
 import com.example.conference_app.server.dto.RegistrationRequest;
 import com.example.conference_app.server.model.User;
 import com.example.conference_app.server.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+import com.example.conference_app.server.util.JwtUtil;
+
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(origins = "http://localhost:3000")
 public class AuthController {
-    private final UserService userService;
 
-    public AuthController(UserService userService) {
+    private final UserService userService;
+    private final JwtUtil jwtUtil;
+
+    public AuthController(UserService userService, JwtUtil jwtUtil) {
         this.userService = userService;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
-        User user = userService.login(request.getEmail(), request.getPassword());
-        return ResponseEntity.ok(new LoginResponse(user));
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        try {
+            User user = userService.login(request.getEmail(), request.getPassword());
+            String token = jwtUtil.generateToken(user.getEmail());
+            return ResponseEntity.ok(Map.of(
+                    "token", token,
+                    "user", new LoginResponse(user)
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", e.getMessage()));
+        }
     }
 
     @PostMapping("/register")

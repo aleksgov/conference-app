@@ -2,7 +2,9 @@ import withFlowbiteReact from "flowbite-react/plugin/nextjs";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    // Добавляем обработчик SVG
+    env: {
+        JWT_SECRET_BASE64: process.env.JWT_SECRET_BASE64,
+    },
     webpack(config) {
         config.module.rules.push({
             test: /\.svg$/,
@@ -12,7 +14,6 @@ const nextConfig = {
         return config;
     },
 
-    // Существующие переадресации
     async rewrites() {
         return [
             {

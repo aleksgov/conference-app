@@ -8,7 +8,7 @@ export default {
         "./app/**/*.{js,ts,jsx,tsx,mdx}",
         ".flowbite-react\\class-list.json"
     ],
-    darkMode: 'class',
+    darkMode: ['class', 'body'],
     theme: {
         extend: {
             colors: {

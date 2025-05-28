@@ -15,21 +15,21 @@ const DynamicThemeSwitcher = dynamic(() => import('./ThemeSwitcher'), {
 
 export default function Navbar() {
     return (
-        <nav className='navbar w-full px-20 py-3 shadow-lg bg-white dark:bg-slate-900 z-50'>
+        <nav className='navbar w-full px-20 py-3 shadow-lg bg-white dark:bg-slate-900 text-gray-800 dark:text-white z-50'>
             <div className='flex items-center'>
-                <section className='nav-left font-bold mr-auto text-xl flex items-center gap-2'>
+                <section className='nav-left font-bold mr-auto text-xl flex items-center gap-2 text-gray-800 dark:text-white'>
                     <Logo className='w-8 h-8 text-gray-800 dark:text-white flex-shrink-0' />
                     Conferva
                 </section>
                 <ul className='nav-links flex gap-10 items-center'>
                     <li>
                         <Link href='/'>
-                            <span className='flex items-center gap-2'>Главная</span>
+                            <span className='flex items-center gap-2 text-gray-800 dark:text-white'>Главная</span>
                         </Link>
                     </li>
                     <li>
                         <Link href='/about'>
-                            <span className="flex items-center gap-2">
+                            <span className="flex items-center gap-2 text-gray-800 dark:text-white">
                                 <AboutIcon className="w-5 h-5 text-gray-800 dark:text-white" />
                                 О нас
                             </span>
@@ -37,7 +37,7 @@ export default function Navbar() {
                     </li>
                     <li>
                         <Link href='/contacts'>
-                            <span className="flex items-center gap-2">
+                            <span className="flex items-center gap-2 text-gray-800 dark:text-white">
                                 <ContactIcon className="w-5 h-5 text-gray-800 dark:text-white" />
                                 Контакты
                             </span>
@@ -45,7 +45,7 @@ export default function Navbar() {
                     </li>
                     <li>
                         <Link href="/login">
-                            <span className="flex items-center gap-2">
+                            <span className="flex items-center gap-2 text-gray-800 dark:text-white">
                                 <LoginIcon className="w-5 h-5 text-gray-800 dark:text-white" />
                                 Войти
                             </span>

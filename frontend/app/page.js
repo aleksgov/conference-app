@@ -1,5 +1,3 @@
-import Image from "next/image";
-import '@/styles/globals.css';
 import Navbar from "@/components/Navbar";
 
 export default function Home() {

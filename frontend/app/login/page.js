@@ -10,7 +10,6 @@ function ContactsPage() {
 
     return (
         <main className='text--colors_default bg--default'>
-            <Navbar />
             {showLogin ? (
                 <LoginForm onSwitch={() => setShowLogin(false)} />
             ) : (

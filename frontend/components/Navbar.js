@@ -4,11 +4,11 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 
-import LoginIcon from '../icons/login.svg';
-import ContactIcon from '../icons/contact.svg';
-import AboutIcon from '../icons/about.svg';
-import Logo from '../icons/logo.svg';
-import AdminIcon from '../icons/admin.svg';
+import LoginIcon from '@/icons/login.svg';
+import ContactIcon from '@/icons/contact.svg';
+import AboutIcon from '@/icons/about.svg';
+import Logo from '@/icons/logo.svg';
+import AdminIcon from '@/icons/admin.svg';
 
 const DynamicThemeSwitcher = dynamic(() => import('./ThemeSwitcher'), {
     ssr: false,

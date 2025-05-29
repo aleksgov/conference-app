@@ -5,7 +5,7 @@ import { Button } from 'flowbite-react';
 
 function AboutPage() {
     return (
-        <main className='min-h-screen'>
+        <main>
         </main>
     );
 }

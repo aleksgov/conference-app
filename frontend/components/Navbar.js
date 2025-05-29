@@ -1,19 +1,37 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 
 import LoginIcon from '../icons/login.svg';
 import ContactIcon from '../icons/contact.svg';
 import AboutIcon from '../icons/about.svg';
-import Logo from '../icons/Logo.svg';
+import Logo from '../icons/logo.svg';
+import AdminIcon from '../icons/admin.svg';
 
 const DynamicThemeSwitcher = dynamic(() => import('./ThemeSwitcher'), {
     ssr: false,
 });
 
 export default function Navbar() {
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // проверка данных пользователя на статус в системе
+        const userData = localStorage.getItem('user');
+        if (userData) {
+            try {
+                const user = JSON.parse(userData);
+                setIsAdmin(user.role === 'ADMIN');
+            } catch (e) {
+                console.error('Error parsing user data:', e);
+            }
+        }
+        setIsLoading(false);
+    }, []);
+
     return (
         <nav className='navbar w-full px-20 py-3 shadow-lg bg-white dark:bg-slate-900 text-gray-800 dark:text-white z-50'>
             <div className='flex items-center'>
@@ -43,6 +61,19 @@ export default function Navbar() {
                             </span>
                         </Link>
                     </li>
+
+                    {/* Добавляем вкладку для администратора */}
+                    {!isLoading && isAdmin && (
+                        <li>
+                            <Link href='/dashboard'>
+                                <span className="flex items-center gap-2 text-gray-800 dark:text-white">
+                                    <AdminIcon className="w-5 h-5 text-gray-800 dark:text-white" />
+                                    Панель администрирования
+                                </span>
+                            </Link>
+                        </li>
+                    )}
+
                     <li>
                         <Link href="/login">
                             <span className="flex items-center gap-2 text-gray-800 dark:text-white">

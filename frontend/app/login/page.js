@@ -1,15 +1,14 @@
 "use client";
 
 import React, { useState } from 'react';
-import Navbar from '@/components/Navbar';
 import LoginForm from "@/components/LoginForm";
 import RegistrationForm from "@/components/RegistrationForm";
 
-function ContactsPage() {
+function LoginPage() {
     const [showLogin, setShowLogin] = useState(true);
 
     return (
-        <main className='text--colors_default bg--default'>
+        <main>
             {showLogin ? (
                 <LoginForm onSwitch={() => setShowLogin(false)} />
             ) : (
@@ -19,4 +18,4 @@ function ContactsPage() {
     );
 }
 
-export default ContactsPage;
+export default LoginPage;

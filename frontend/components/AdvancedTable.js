@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Dropdown } from 'flowbite-react';
 
 const AdvancedTable = ({ endpoint, columns, addLink }) => {
     const [data, setData] = useState([]);
@@ -12,8 +11,10 @@ const AdvancedTable = ({ endpoint, columns, addLink }) => {
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
+    const [openDropdownId, setOpenDropdownId] = useState(null);
+    const dropdownRef = useRef(null);
 
-    // Загрузка данных с сервера
+    // данные с сервака
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -32,20 +33,27 @@ const AdvancedTable = ({ endpoint, columns, addLink }) => {
         fetchData();
     }, [endpoint]);
 
-    // Обработка сортировки
-    const handleSort = (key) => {
-        let direction = 'ascending';
-        if (sortConfig.key === key && sortConfig.direction === 'ascending') {
-            direction = 'descending';
-        }
-        setSortConfig({ key, direction });
-    };
+    // закрытие меню при клике вне области
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current &&
+                !dropdownRef.current.contains(event.target) &&
+                !event.target.closest(`[data-dropdown-button]`)) {
+                setOpenDropdownId(null);
+            }
+        };
 
-    // Фильтрация и сортировка данных
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    // фильтры и сортировка
     const processedData = React.useMemo(() => {
         let filteredData = data;
 
-        // Фильтрация
+        // фильтры
         if (searchTerm) {
             filteredData = data.filter(item =>
                 Object.values(item).some(
@@ -56,7 +64,7 @@ const AdvancedTable = ({ endpoint, columns, addLink }) => {
             );
         }
 
-        // Сортировка
+        // сортировка
         if (sortConfig.key) {
             filteredData = [...filteredData].sort((a, b) => {
                 if (a[sortConfig.key] < b[sortConfig.key]) {
@@ -72,19 +80,16 @@ const AdvancedTable = ({ endpoint, columns, addLink }) => {
         return filteredData;
     }, [data, searchTerm, sortConfig]);
 
-    // Пагинация
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = processedData.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages = Math.ceil(processedData.length / itemsPerPage);
 
-    // Рендер иконки сортировки
     const renderSortIcon = (columnKey) => {
         if (sortConfig.key !== columnKey) return null;
         return sortConfig.direction === 'ascending' ? '▲' : '▼';
     };
 
-    // Условный рендер содержимого ячейки, исходя из поля `type`
     const renderCellContent = (column, item) => {
         switch (column.type) {
             case 'id':
@@ -103,6 +108,11 @@ const AdvancedTable = ({ endpoint, columns, addLink }) => {
         }
     };
 
+    const toggleDropdown = (id, e) => {
+        e.stopPropagation();
+        setOpenDropdownId(openDropdownId === id ? null : id);
+    };
+
     if (isLoading) {
         return <div className="text-center py-10">Загрузка данных...</div>;
     }
@@ -111,12 +121,11 @@ const AdvancedTable = ({ endpoint, columns, addLink }) => {
     }
 
     return (
-        <section className="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
+        <section className="mt-12 bg-gray-100 dark:bg-gray-900 p-3 sm:p-5">
             <div className="mx-auto max-w-screen-xl px-4 lg:px-12">
                 <div className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
-                    {/* Панель управления */}
                     <div className="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
-                        {/* Поиск */}
+                        {/* поиск */}
                         <div className="w-full md:w-1/2">
                             <div className="flex items-center">
                                 <label htmlFor="simple-search" className="sr-only">
@@ -150,7 +159,7 @@ const AdvancedTable = ({ endpoint, columns, addLink }) => {
                             </div>
                         </div>
 
-                        {/* Кнопка «Добавить» (Link на страницу создания) */}
+                        {/* кнопка добавления */}
                         {addLink && (
                             <div className="w-full md:w-auto flex justify-end">
                                 <Link
@@ -176,7 +185,6 @@ const AdvancedTable = ({ endpoint, columns, addLink }) => {
                         )}
                     </div>
 
-                    {/* Таблица */}
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                             <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -194,7 +202,7 @@ const AdvancedTable = ({ endpoint, columns, addLink }) => {
                                         </div>
                                     </th>
                                 ))}
-                                <th scope="col" className="px-4 py-3">
+                                <th scope="col" className="px-1 py-3">
                                     Действия
                                 </th>
                             </tr>
@@ -209,9 +217,13 @@ const AdvancedTable = ({ endpoint, columns, addLink }) => {
                                             </td>
                                         ))}
                                         <td className="px-4 py-3">
-                                            <Dropdown
-                                                label={
-                                                    <button className="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100">
+                                            <div className="flex items-center justify-end">
+                                                <div className="relative inline-block" ref={dropdownRef}>
+                                                    <button
+                                                        onClick={(e) => toggleDropdown(item.conferenceId, e)}
+                                                        className="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
+                                                        type="button"
+                                                    >
                                                         <svg
                                                             className="w-5 h-5"
                                                             aria-hidden="true"
@@ -222,15 +234,42 @@ const AdvancedTable = ({ endpoint, columns, addLink }) => {
                                                             <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
                                                         </svg>
                                                     </button>
-                                                }
-                                                inline
-                                                placement="left"
-                                            >
-                                                <Dropdown.Item>Просмотр</Dropdown.Item>
-                                                <Dropdown.Item>Редактировать</Dropdown.Item>
-                                                <Dropdown.Divider />
-                                                <Dropdown.Item>Удалить</Dropdown.Item>
-                                            </Dropdown>
+
+                                                    <div
+                                                        className={`z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 absolute right-0 ${openDropdownId === item.conferenceId ? '' : 'hidden'}`}
+                                                    >
+                                                        <ul className="py-1 text-sm text-gray-700 dark:text-gray-200">
+                                                            <li>
+                                                                <a
+                                                                    href="#"
+                                                                    className="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                                                                    onClick={(e) => e.preventDefault()}
+                                                                >
+                                                                    Просмотр
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a
+                                                                    href="#"
+                                                                    className="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                                                                    onClick={(e) => e.preventDefault()}
+                                                                >
+                                                                    Редактировать
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                        <div className="py-1">
+                                                            <a
+                                                                href="#"
+                                                                className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+                                                                onClick={(e) => e.preventDefault()}
+                                                            >
+                                                                Удалить
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))
@@ -245,7 +284,6 @@ const AdvancedTable = ({ endpoint, columns, addLink }) => {
                         </table>
                     </div>
 
-                    {/* Пагинация */}
                     {totalPages > 1 && (
                         <nav
                             className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4"

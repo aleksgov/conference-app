@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
 
 import LoginIcon from '@/icons/login.svg';
 import ContactIcon from '@/icons/contact.svg';
@@ -10,10 +9,7 @@ import AboutIcon from '@/icons/about.svg';
 import Logo from '@/icons/logo.svg';
 import AdminIcon from '@/icons/admin.svg';
 import ProfileAvatar from './ProfileAvatar';
-
-const DynamicThemeSwitcher = dynamic(() => import('./ThemeSwitcher'), {
-    ssr: false,
-});
+import {DarkThemeToggle} from "flowbite-react";
 
 export default function Navbar() {
     const [user, setUser] = useState(null);
@@ -106,6 +102,7 @@ export default function Navbar() {
                         </li>
                     )}
 
+
                     {!isLoading && (
                         <>
                             {isLoggedIn ? (
@@ -146,7 +143,7 @@ export default function Navbar() {
                                                         <Link
                                                             href='/dashboard'
                                                             className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-                                                                Админ-панель
+                                                            Админ-панель
                                                         </Link>
                                                     </li>
                                                 )}
@@ -155,10 +152,11 @@ export default function Navbar() {
                                                         href='/settings'
                                                         className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                                                     >
-                                                            Настройки
+                                                        Настройки
                                                     </Link>
                                                 </li>
                                             </ul>
+
 
                                             <div className="py-1">
                                                 <button
@@ -184,9 +182,11 @@ export default function Navbar() {
                         </>
                     )}
                 </ul>
-
-                <DynamicThemeSwitcher />
+                <DarkThemeToggle className="ml-8" />
             </div>
         </nav>
     );
 }
+
+
+

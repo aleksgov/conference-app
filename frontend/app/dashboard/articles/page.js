@@ -1,23 +1,31 @@
 import AdvancedTable from '@/components/AdvancedTable';
 
-const ConferencesPage = () => {
-
+const ArticlesPage = () => {
     const columns = [
-        { key: 'conferenceId', title: 'ID', type: 'id' },
-        { key: 'name', title: 'Название', type: 'name' },
-        { key: 'startDate', title: 'Дата начала', type: 'date' },
-        { key: 'endDate', title: 'Дата окончания', type: 'date' },
+        { key: 'id', title: 'ID', type: 'id' },
+        { key: 'name', title: 'Название статьи', type: 'name' },
+        { key: 'pages', title: 'Страницы' },
+        { key: 'authors', title: 'Авторы' },
+        {
+            key: 'section.name',
+            title: 'Секция',
+        },
+        {
+            key: 'section.conference.name',
+            title: 'Конференция',
+        },
     ];
 
-    const addLink = '/dashboard/conferences/create';
+    const addLink = '/dashboard/articles/create';
 
     return (
         <AdvancedTable
-            endpoint="/api/conferences"
+            endpoint="/api/articles"
             columns={columns}
             addLink={addLink}
+            idKey="id"
         />
     );
 };
 
-export default ConferencesPage;
+export default ArticlesPage;

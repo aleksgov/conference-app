@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Dropdown } from 'flowbite-react';
 import DeleteModal from "@/components/DeleteModal";
 
-const AdvancedTable = ({ endpoint, columns, addLink }) => {
+const AdvancedTable = ({ endpoint, columns, addLink, idKey = 'conferenceId'}) => {
     const [data, setData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -14,13 +14,13 @@ const AdvancedTable = ({ endpoint, columns, addLink }) => {
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
     const [currentPage, setCurrentPage] = useState(1);
 
-    const [modalOpen, setModalOpen] = useState(false);       // управление видимостью модалки
-    const [toDeleteId, setToDeleteId] = useState(null);      // какой ID собираемся удалить
+    const [modalOpen, setModalOpen] = useState(false);
+    const [toDeleteId, setToDeleteId] = useState(null);
     const [toDeleteName, setToDeleteName] = useState("");
 
     const itemsPerPage = 10;
 
-    // Удаление записи на сервере
+    // удаление записи на сервере
     const handleDelete = async (id) => {
         if (!window.confirm('Вы действительно хотите удалить эту запись?')) {
             return;
@@ -33,14 +33,14 @@ const AdvancedTable = ({ endpoint, columns, addLink }) => {
             if (!response.ok) {
                 throw new Error(`Ошибка при удалении (status: ${response.status})`);
             }
-            setData(prevData => prevData.filter(item => item.conferenceId !== id));
+            setData(prevData => prevData.filter(item => item[idKey] !== id));
         } catch (err) {
             console.error('Не удалось удалить запись:', err);
             alert('Не удалось удалить запись. Пожалуйста, попробуйте ещё раз.');
         }
     };
 
-    // Загрузка данных с сервера
+    // загрузка данных с сервера
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -59,10 +59,11 @@ const AdvancedTable = ({ endpoint, columns, addLink }) => {
         fetchData();
     }, [endpoint]);
 
-    // Фильтрация и сортировка данных
+    // фильтрация и сортировка данных
     const processedData = React.useMemo(() => {
         let filteredData = data;
 
+        // фильтрация
         if (searchTerm) {
             filteredData = data.filter(item =>
                 Object.values(item).some(
@@ -72,7 +73,7 @@ const AdvancedTable = ({ endpoint, columns, addLink }) => {
                 )
             );
         }
-
+        // сортировка
         if (sortConfig.key) {
             filteredData = [...filteredData].sort((a, b) => {
                 if (a[sortConfig.key] < b[sortConfig.key]) {
@@ -98,21 +99,39 @@ const AdvancedTable = ({ endpoint, columns, addLink }) => {
         return sortConfig.direction === 'ascending' ? '▲' : '▼';
     };
 
+    const getNestedValue = (obj, path) => {
+        return path.split('.').reduce((acc, part) => {
+            return acc && acc[part];
+        }, obj);
+    };
+
     const renderCellContent = (column, item) => {
+        let value = getNestedValue(item, column.key);
+
+        if (value === undefined || value === null) {
+            return <span className="text-gray-400">Не указано</span>;
+        }
+
         switch (column.type) {
             case 'id':
-                return <span className="font-medium">{item[column.key]}</span>;
+                return <span className="font-medium">{value}</span>;
             case 'name':
-                return <span className="font-semibold">{item[column.key]}</span>;
+                return <span className="font-semibold">{value}</span>;
             case 'date':
                 try {
-                    const dt = new Date(item[column.key]);
+                    const dt = new Date(value);
                     return <span>{dt.toLocaleDateString('ru-RU')}</span>;
                 } catch {
-                    return <span>{item[column.key]}</span>;
+                    return <span>{value}</span>;
+                }
+            case 'time':
+                try {
+                    return <span>{value.substring(0, 5)}</span>;
+                } catch {
+                    return <span>{value}</span>;
                 }
             default:
-                return <span>{item[column.key]}</span>;
+                return <span>{value}</span>;
         }
     };
 
@@ -126,11 +145,10 @@ const AdvancedTable = ({ endpoint, columns, addLink }) => {
 
     const askDelete = (id, name) => {
         setToDeleteId(id);
-        setToDeleteName(name || ""); // если есть поле с названием, можно передать
+        setToDeleteName(name || "");
         setModalOpen(true);
     };
 
-    // 2) Когда пользователь подтвердил удаление в модалке
     const confirmDelete = async () => {
         try {
             const response = await fetch(`${endpoint}/${toDeleteId}`, {
@@ -139,10 +157,7 @@ const AdvancedTable = ({ endpoint, columns, addLink }) => {
             if (!response.ok) {
                 throw new Error(`Ошибка при удалении (status: ${response.status})`);
             }
-            // обновляем локальный массив
-            setData((prev) =>
-                prev.filter((item) => item.conferenceId !== toDeleteId)
-            );
+            setData((prev) => prev.filter((item) => item[idKey] !== toDeleteId));
         } catch (err) {
             console.error("Не удалось удалить запись:", err);
             alert("Не удалось удалить запись. Попробуйте ещё раз.");
@@ -153,7 +168,6 @@ const AdvancedTable = ({ endpoint, columns, addLink }) => {
         }
     };
 
-    // 3) Когда пользователь нажал «Нет, отмена» или закрыл модалку
     const cancelDelete = () => {
         setModalOpen(false);
         setToDeleteId(null);
@@ -168,10 +182,9 @@ const AdvancedTable = ({ endpoint, columns, addLink }) => {
     }
 
     return (
-        <section className="mt-12 bg-gray-100 dark:bg-gray-900 p-3 sm:p-5">
+        <section className="mt-6 bg-gray-100 dark:bg-gray-900 p-3 sm:p-5">
             <div className="mx-auto max-w-screen-xl px-4 lg:px-12">
                 <div className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
-                    {/* Поиск и кнопка "Добавить" */}
                     <div className="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
                         <div className="w-full md:w-1/2">
                             <div className="flex items-center">
@@ -256,7 +269,7 @@ const AdvancedTable = ({ endpoint, columns, addLink }) => {
                             <tbody>
                             {currentItems.length > 0 ? (
                                 currentItems.map((item) => (
-                                    <tr key={item.conferenceId} className="border-b dark:border-gray-700">
+                                    <tr key={item[idKey]} className="border-b dark:border-gray-700">
                                         {columns.map((column) => (
                                             <td key={column.key} className="px-4 py-3">
                                                 {renderCellContent(column, item)}
@@ -294,9 +307,7 @@ const AdvancedTable = ({ endpoint, columns, addLink }) => {
                                                     <hr className="my-1 border-gray-200 dark:border-gray-600" />
                                                     <span
                                                         className="block px-4 py-2 text-red-600 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white cursor-pointer"
-                                                        onClick={() =>
-                                                            askDelete(item.conferenceId, item.name || "")
-                                                        }
+                                                        onClick={() => askDelete(item[idKey], item.name || "")}
                                                     >
                                                         Удалить
                                                     </span>
@@ -316,23 +327,22 @@ const AdvancedTable = ({ endpoint, columns, addLink }) => {
                         </table>
                     </div>
 
-                    {/* Пагинация */}
                     {totalPages > 1 && (
                         <nav
                             className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4"
                             aria-label="Table navigation"
                         >
-              <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
-                Показано{' '}
-                  <span className="font-semibold text-gray-900 dark:text-white">
-                  {Math.min(indexOfFirstItem + 1, processedData.length)}-
-                      {Math.min(indexOfLastItem, processedData.length)}
-                </span>{' '}
-                  из{' '}
-                  <span className="font-semibold text-gray-900 dark:text-white">
-                  {processedData.length}
-                </span>
-              </span>
+                        <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
+                            Показано{' '}
+                        <span className="font-semibold text-gray-900 dark:text-white">
+                            {Math.min(indexOfFirstItem + 1, processedData.length)}-
+                            {Math.min(indexOfLastItem, processedData.length)}
+                        </span>{' '}
+                            из{' '}
+                        <span className="font-semibold text-gray-900 dark:text-white">
+                            {processedData.length}
+                        </span>
+                        </span>
                             <ul className="inline-flex items-stretch -space-x-px">
                                 <li>
                                     <button
@@ -377,9 +387,9 @@ const AdvancedTable = ({ endpoint, columns, addLink }) => {
 
                                 {totalPages > 5 && (
                                     <li>
-                    <span className="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                      ...
-                    </span>
+                                        <span className="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                                            ...
+                                        </span>
                                     </li>
                                 )}
 

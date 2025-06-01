@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 import LoginIcon from '@/icons/login.svg';
 import ContactIcon from '@/icons/contact.svg';
 import AboutIcon from '@/icons/about.svg';
-import Logo from '@/icons/logo.svg';
+import LogoPng from "@/icons/logo.png";
 import AdminIcon from '@/icons/admin.svg';
 import ProfileAvatar from './ProfileAvatar';
 import {DarkThemeToggle} from "flowbite-react";
@@ -62,7 +63,13 @@ export default function Navbar() {
         <nav className="navbar w-full px-20 py-3 shadow-lg bg-white dark:bg-slate-900 text-gray-800 dark:text-white z-50">
             <div className="flex items-center">
                 <section className="nav-left font-bold mr-auto text-xl flex items-center gap-2 text-gray-800 dark:text-white">
-                    <Logo className="w-8 h-8 text-gray-800 dark:text-white flex-shrink-0" />
+                    <Image
+                        src={LogoPng}
+                        alt="Logo"
+                        width={40}
+                        height={40}
+                        className="flex-shrink-0"
+                    />
                     Conferva
                 </section>
 

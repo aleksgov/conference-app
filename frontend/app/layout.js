@@ -16,12 +16,16 @@ const geistMono = Geist_Mono({
 export const metadata = {
     title: "Conferva",
     description: "",
+    icons: {
+        icon: "/favicon.ico",
+        }
 };
 
 export default function RootLayout({ children }) {
     return (
         <html lang="en" suppressHydrationWarning>
             <head>
+                <link rel="icon" href="/favicon.ico" />
                 <ThemeModeScript />
             </head>
             <body

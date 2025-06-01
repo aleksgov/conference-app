@@ -181,6 +181,8 @@ const AdvancedTable = ({ endpoint, columns, addLink, idKey = 'conferenceId'}) =>
         return <div className="text-red-500 text-center py-10">Ошибка: {error}</div>;
     }
 
+    const entityType = endpoint.split('/').pop();
+
     return (
         <section className="mt-6 bg-gray-100 dark:bg-gray-900 p-3 sm:p-5">
             <div className="mx-auto max-w-screen-xl px-4 lg:px-12">
@@ -248,9 +250,9 @@ const AdvancedTable = ({ endpoint, columns, addLink, idKey = 'conferenceId'}) =>
                         <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400 border-collapse">
                             <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                             <tr>
-                                {columns.map((column) => (
+                                {columns.map((column, columnIndex) => (
                                     <th
-                                        key={column.key}
+                                        key={column.key || `column-${columnIndex}`}
                                         scope="col"
                                         className="px-4 py-3 cursor-pointer"
                                         onClick={() => handleSort(column.key)}
@@ -268,10 +270,10 @@ const AdvancedTable = ({ endpoint, columns, addLink, idKey = 'conferenceId'}) =>
                             </thead>
                             <tbody>
                             {currentItems.length > 0 ? (
-                                currentItems.map((item) => (
-                                    <tr key={item[idKey]} className="border-b dark:border-gray-700">
-                                        {columns.map((column) => (
-                                            <td key={column.key} className="px-4 py-3">
+                                currentItems.map((item, itemIndex) => (
+                                    <tr key={item[idKey] || `item-${itemIndex}`} className="border-b dark:border-gray-700">
+                                        {columns.map((column, columnIndex) => (
+                                            <td key={`${item[idKey] || itemIndex}-${column.key || columnIndex}`} className="px-4 py-3">
                                                 {renderCellContent(column, item)}
                                             </td>
                                         ))}
@@ -298,12 +300,11 @@ const AdvancedTable = ({ endpoint, columns, addLink, idKey = 'conferenceId'}) =>
                                                 >
                                                     Просмотр
                                                 </span>
-                                                    <span
-                                                        className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer"
-                                                        onClick={(e) => e.preventDefault()}
-                                                    >
+                                                    <Link href={`/dashboard/${entityType}/edit/${item[idKey]}`}>
+                                                    <span className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer">
                                                         Редактировать
                                                     </span>
+                                                    </Link>
                                                     <hr className="my-1 border-gray-200 dark:border-gray-600" />
                                                     <span
                                                         className="block px-4 py-2 text-red-600 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white cursor-pointer"
@@ -370,7 +371,7 @@ const AdvancedTable = ({ endpoint, columns, addLink, idKey = 'conferenceId'}) =>
                                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                                     const pageNumber = i + 1;
                                     return (
-                                        <li key={pageNumber}>
+                                        <li key={`page-${pageNumber}`}>
                                             <button
                                                 className={`flex items-center justify-center text-sm py-2 px-3 leading-tight ${
                                                     currentPage === pageNumber
@@ -386,7 +387,7 @@ const AdvancedTable = ({ endpoint, columns, addLink, idKey = 'conferenceId'}) =>
                                 })}
 
                                 {totalPages > 5 && (
-                                    <li>
+                                    <li key="pagination-ellipsis">
                                         <span className="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                                             ...
                                         </span>

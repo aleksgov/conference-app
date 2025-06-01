@@ -14,10 +14,8 @@ import java.time.LocalDate;
 @Getter
 @NoArgsConstructor
 @Entity
-public class Conference {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long conferenceId;
+public class Conference extends BaseEntity {
+
     private String name;
     private LocalDate startDate;
     private LocalDate endDate;

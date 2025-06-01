@@ -3,7 +3,7 @@ import AdvancedTable from '@/components/AdvancedTable';
 const ConferencesPage = () => {
 
     const columns = [
-        { key: 'conferenceId', title: 'ID', type: 'id' },
+        { key: 'id', title: 'ID', type: 'id' },
         { key: 'name', title: 'Название', type: 'name' },
         { key: 'startDate', title: 'Дата начала', type: 'date' },
         { key: 'endDate', title: 'Дата окончания', type: 'date' },
@@ -16,6 +16,7 @@ const ConferencesPage = () => {
             endpoint="/api/conferences"
             columns={columns}
             addLink={addLink}
+            idKey="id"
         />
     );
 };

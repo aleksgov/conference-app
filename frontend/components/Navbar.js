@@ -15,8 +15,10 @@ import {DarkThemeToggle} from "flowbite-react";
 export default function Navbar() {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const dropdownRef = useRef(null);
+    const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+    const [isAdminDropdownOpen, setIsAdminDropdownOpen] = useState(false);
+    const profileDropdownRef = useRef(null);
+    const adminDropdownRef = useRef(null);
 
     useEffect(() => {
         // проверка данных пользователя на статус в системе
@@ -40,10 +42,16 @@ export default function Navbar() {
     useEffect(() => {
         function handleClickOutside(event) {
             if (
-                dropdownRef.current &&
-                !dropdownRef.current.contains(event.target)
+                profileDropdownRef.current &&
+                !profileDropdownRef.current.contains(event.target)
             ) {
-                setIsDropdownOpen(false);
+                setIsProfileDropdownOpen(false);
+            }
+            if (
+                adminDropdownRef.current &&
+                !adminDropdownRef.current.contains(event.target)
+            ) {
+                setIsAdminDropdownOpen(false);
             }
         }
         document.addEventListener('mousedown', handleClickOutside);
@@ -52,11 +60,13 @@ export default function Navbar() {
         };
     }, []);
 
+
     // очистка данных вход/выход
     function handleSignOut() {
         localStorage.removeItem('user');
         setUser(null);
-        setIsDropdownOpen(false);
+        setIsProfileDropdownOpen(false);
+        setIsAdminDropdownOpen(false);
     }
 
     return (
@@ -99,13 +109,62 @@ export default function Navbar() {
                     </li>
 
                     {!isLoading && isAdmin && (
-                        <li>
-                            <Link href='/dashboard'>
-                                <span className="flex items-center gap-2 text-gray-800 dark:text-white">
-                                    <AdminIcon className="w-5 h-5 text-gray-800 dark:text-white" />
-                                    Панель администрирования
-                                </span>
-                            </Link>
+                        <li className="relative" ref={adminDropdownRef}>
+                            <button
+                                type="button"
+                                className="flex items-center gap-2 text-gray-800 dark:text-white focus:outline-none"
+                                onClick={() => setIsAdminDropdownOpen(!isAdminDropdownOpen)}
+                            >
+                                <AdminIcon className="w-5 h-5 text-gray-800 dark:text-white" />
+                                Панель администрирования
+                            </button>
+
+                            {isAdminDropdownOpen && (
+                                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 divide-y divide-gray-100 dark:divide-gray-600 rounded-lg shadow-sm z-50">
+                                    <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
+                                        <li>
+                                            <Link
+                                                href='/dashboard/conferences'
+                                                className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                                            >
+                                                Конференции
+                                            </Link>
+                                        </li>
+                                        <li>
+                                            <Link
+                                                href='/dashboard/sections'
+                                                className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                                            >
+                                                Секции
+                                            </Link>
+                                        </li>
+                                        <li>
+                                            <Link
+                                                href='/dashboard/auditoriums'
+                                                className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                                            >
+                                                Аудитории
+                                            </Link>
+                                        </li>
+                                        <li>
+                                            <Link
+                                                href='/dashboard/participants'
+                                                className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                                            >
+                                                Участники
+                                            </Link>
+                                        </li>
+                                        <li>
+                                            <Link
+                                                href='/dashboard/presentations'
+                                                className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                                            >
+                                                Презентации
+                                            </Link>
+                                        </li>
+                                    </ul>
+                                </div>
+                            )}
                         </li>
                     )}
 
@@ -113,11 +172,11 @@ export default function Navbar() {
                     {!isLoading && (
                         <>
                             {isLoggedIn ? (
-                                <li className="relative" ref={dropdownRef}>
+                                <li className="relative" ref={profileDropdownRef}>
                                     <button
                                         type="button"
                                         className="flex items-center gap-2 text-gray-800 dark:text-white focus:outline-none"
-                                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                        onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                                     >
                                         <ProfileAvatar />
                                         <span className="truncate max-w-[80px]">
@@ -125,7 +184,7 @@ export default function Navbar() {
                                         </span>
                                     </button>
 
-                                    {isDropdownOpen && (
+                                    {isProfileDropdownOpen && (
                                         <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-gray-700 divide-y divide-gray-100 dark:divide-gray-600 rounded-lg shadow-sm z-50">
                                             <div className="px-4 py-3 text-sm text-gray-900 dark:text-white">
                                                 <div>{user.name}</div>
@@ -145,15 +204,6 @@ export default function Navbar() {
                                                         Профиль
                                                     </Link>
                                                 </li>
-                                                {isAdmin && (
-                                                    <li>
-                                                        <Link
-                                                            href='/dashboard'
-                                                            className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-                                                            Админ-панель
-                                                        </Link>
-                                                    </li>
-                                                )}
                                                 <li>
                                                     <Link
                                                         href='/settings'

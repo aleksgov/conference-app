@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 import LoginIcon from '@/icons/login.svg';
-import ContactIcon from '@/icons/contact.svg';
+import ConferenceIcon from '@/icons/contact.svg';
 import AboutIcon from '@/icons/about.svg';
 import LogoPng from "@/icons/logo.png";
 import AdminIcon from '@/icons/admin.svg';
@@ -90,10 +90,10 @@ export default function Navbar() {
                         </Link>
                     </li>
                     <li>
-                        <Link href='/contacts'>
+                        <Link href='/conferences'>
                             <span className="flex items-center gap-2 text-gray-800 dark:text-white">
-                                <ContactIcon className="w-5 h-5 text-gray-800 dark:text-white" />
-                                Контакты
+                                <ConferenceIcon className="w-5 h-5 text-gray-800 dark:text-white" />
+                                Конференции
                             </span>
                         </Link>
                     </li>

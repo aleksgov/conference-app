@@ -311,99 +311,108 @@ const AdvancedTable = ({ endpoint, columns, addLink, idKey = 'conferenceId', fil
                                 </div>
                             </div>
 
-                            {filters?.map(filter => {
-                                const keyPath = filter.key;
-                                const title = filter.title;
-                                const options = filterOptions[keyPath] || [];
-                                const selectedArr = selectedFilters[keyPath] || [];
-
-                                return (
-                                    <Dropdown
-                                        key={keyPath}
-                                        inline
-                                        arrowIcon={false}
-                                        label={
-                                            <span className="flex items-center py-2 px-4 text-sm font-medium text-gray-900 bg-white
-                                                rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700
-                                                dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white
-                                                dark:hover:bg-gray-700"
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
-                                                     className="h-4 w-4 mr-2 text-gray-400" viewBox="0 0 20 20"
-                                                     fill="currentColor">
-                                                     <path fillRule="evenodd"
-                                                          d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1
-                                                          0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
-                                                          clipRule="evenodd"
-                                                     />
-                                                </svg>
+                            {filters && filters.length > 0 && (
+                                <Dropdown
+                                    inline
+                                    arrowIcon={false}
+                                    label={
+                                        <span className="flex items-center py-2 px-4 text-sm font-medium text-gray-900 bg-white
+                                            rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700
+                                            dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white
+                                            dark:hover:bg-gray-700"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
+                                                className="h-4 w-4 mr-2 text-gray-400" viewBox="0 0 20 20"
+                                                fill="currentColor">
+                                                <path fillRule="evenodd"
+                                                    d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1
+                                                    0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+                                                    clipRule="evenodd"
+                                                />
+                                            </svg>
                                                 Фильтр
-                                                <svg className="ml-1 -mr-1.5 w-5 h-5" fill="currentColor"
-                                                     viewBox="0 0 20 20">
-                                                    <path
-                                                        clipRule="evenodd"
-                                                        fillRule="evenodd"
-                                                        d="M5.293 7.293a1 1 0 011.414
-                                                        0L10 10.586l3.293-3.293a1
-                                                        1 0 111.414 1.414l-4 4a1
-                                                        1 0 01-1.414 0l-4-4a1
-                                                        1 0 010-1.414z"
-                                                    />
-                                                </svg>
-                                            </span>
-                                        }
-                                        className="mr-2"
-                                    >
-                                        <div className="p-3 bg-white dark:bg-gray-700">
-                                            <h6 className="mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                                            { title }
-                                            </h6>
-                                            <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-200">
-                                                {options.map(option => {
-                                                    const isChecked = selectedArr.includes(option);
-                                                    return (
-                                                        <li key={option} className="flex items-center">
-                                                            <input
-                                                                id={`${keyPath}-${option}`}
-                                                                type="checkbox"
-                                                                className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                                                                checked={isChecked}
-                                                                onChange={() => {
-                                                                    const newSelected = { ...selectedFilters };
-                                                                    if (isChecked) {
-                                                                        newSelected[keyPath] = newSelected[keyPath].filter(v => v !== option);
-                                                                    } else {
-                                                                        newSelected[keyPath] = [...newSelected[keyPath], option];
-                                                                    }
-                                                                    setSelectedFilters(newSelected);
-                                                                    setCurrentPage(1);
-                                                                }}
-                                                            />
-                                                            <label
-                                                                htmlFor={`${keyPath}-${option}`}
-                                                                className="ml-2 text-sm font-medium cursor-pointer"
-                                                            >
-                                                                {option}
-                                                            </label>
-                                                        </li>
-                                                    );
-                                                })}
-                                            </ul>
-                                            <button
-                                                className="mt-2 text-xs text-primary-600 hover:underline"
-                                                onClick={() => {
-                                                    const newSelected = { ...selectedFilters };
-                                                    newSelected[keyPath] = [];
-                                                    setSelectedFilters(newSelected);
-                                                    setCurrentPage(1);
-                                                }}
-                                            >
-                                                Сбросить фильтр
-                                            </button>
-                                        </div>
-                                    </Dropdown>
-                                );
-                            })}
+                                            <svg className="ml-1 -mr-1.5 w-5 h-5" fill="currentColor"
+                                                viewBox="0 0 20 20">
+                                                <path
+                                                clipRule="evenodd"
+                                                fillRule="evenodd"
+                                                d="M5.293 7.293a1 1 0 011.414
+                                                0L10 10.586l3.293-3.293a1
+                                                1 0 111.414 1.414l-4 4a1
+                                                1 0 01-1.414 0l-4-4a1
+                                                1 0 010-1.414z"
+                                                />
+                                            </svg>
+                                        </span>
+                                    }
+                                    className="mr-2"
+                                >
+                                    <div className="bg-white dark:bg-gray-700">
+                                        {filters.map((filter, index) => {
+                                            const keyPath = filter.key;
+                                            const title = filter.title;
+                                            const options = filterOptions[keyPath] || [];
+                                            const selectedArr = selectedFilters[keyPath] || [];
+
+                                            return (
+                                                <React.Fragment key={keyPath}>
+                                                    <div className="p-3">
+                                                        <h6 className="mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                                            {title}
+                                                        </h6>
+                                                        <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-200">
+                                                            {options.map(option => {
+                                                                const isChecked = selectedArr.includes(option);
+                                                                return (
+                                                                    <li key={option} className="flex items-center">
+                                                                        <input
+                                                                            id={`${keyPath}-${option}`}
+                                                                            type="checkbox"
+                                                                            className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                                                                            checked={isChecked}
+                                                                            onChange={() => {
+                                                                                const newSelected = { ...selectedFilters };
+                                                                                if (isChecked) {
+                                                                                    newSelected[keyPath] = newSelected[keyPath].filter(v => v !== option);
+                                                                                } else {
+                                                                                    newSelected[keyPath] = [...newSelected[keyPath], option];
+                                                                                }
+                                                                                setSelectedFilters(newSelected);
+                                                                                setCurrentPage(1);
+                                                                            }}
+                                                                        />
+                                                                        <label
+                                                                            htmlFor={`${keyPath}-${option}`}
+                                                                            className="ml-2 text-sm font-medium cursor-pointer"
+                                                                        >
+                                                                            {option}
+                                                                        </label>
+                                                                    </li>
+                                                                );
+                                                            })}
+                                                        </ul>
+                                                        <button
+                                                            className="mt-4 -mb-4 text-xs text-primary-600 hover:underline"
+                                                            onClick={() => {
+                                                                const newSelected = { ...selectedFilters };
+                                                                newSelected[keyPath] = [];
+                                                                setSelectedFilters(newSelected);
+                                                                setCurrentPage(1);
+                                                            }}
+                                                        >
+                                                            Сбросить фильтр
+                                                        </button>
+                                                    </div>
+
+                                                    {index < filters.length - 1 && (
+                                                        <hr className="border-gray-200 dark:border-gray-600" />
+                                                    )}
+                                                </React.Fragment>
+                                            );
+                                        })}
+                                    </div>
+                                </Dropdown>
+                            )}
                         </div>
                     </div>
 

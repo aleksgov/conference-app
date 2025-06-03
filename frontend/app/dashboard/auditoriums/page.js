@@ -16,12 +16,18 @@ const AuditoriumsPage = () => {
 
     const addLink = '/dashboard/auditoriums/create';
 
+    const filters = [
+        { key: 'section.conference.name', title: 'Конференция' },
+        { key: 'section.name', title: 'Секция' },
+    ];
+
     return (
         <AdvancedTable
             endpoint="/api/auditoriums"
             columns={columns}
             addLink={addLink}
             idKey="id"
+            filters={filters}
         />
     );
 };

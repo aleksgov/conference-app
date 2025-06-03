@@ -551,8 +551,8 @@ const AdvancedTable = ({ endpoint, columns, addLink, idKey = 'conferenceId', fil
                                                 <button
                                                     className={`flex items-center justify-center text-sm py-2 px-3 leading-tight ${
                                                         currentPage === pageNumber
-                                                            ? 'text-primary-600 bg-primary-50 border-primary-300 dark:bg-gray-700 dark:text-white'
-                                                            : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'
+                                                            ? 'flex items-center justify-center text-sm z-10 py-2 px-3 leading-tight text-primary-600 bg-primary-50 border border-primary-300 hover:bg-primary-100 hover:text-primary-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white'
+                                                            : 'flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'
                                                     } border`}
                                                     onClick={() => setCurrentPage(pageNumber)}
                                                 >

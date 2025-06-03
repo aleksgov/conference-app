@@ -1,5 +1,5 @@
 import React from "react";
-import ConferenceForm from "@/components/ConferenceForm";
+import ConferenceForm from "@/components/forms/ConferenceForm.jsx";
 
 const ConferenceEditPage = async ({ params }) => {
     const resolvedParams = await params;

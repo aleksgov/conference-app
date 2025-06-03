@@ -41,7 +41,30 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<LoginResponse> register(@RequestBody RegistrationRequest request) {
-        User user = userService.register(request.getEmail(), request.getPassword());
+        User.Gender userGender = convertGender(request.getGender());
+
+        User user = userService.register(
+            request.getEmail(),
+            request.getPassword(),
+            request.getFullName(),
+            request.getDateOfBirth(),
+            request.getPhone(),
+            userGender
+        );
         return ResponseEntity.ok(new LoginResponse(user));
+    }
+
+    private User.Gender convertGender(RegistrationRequest.Gender dtoGender) {
+        if (dtoGender == null) return User.Gender.UNSPECIFIED;
+
+        switch (dtoGender) {
+            case MALE:
+                return User.Gender.MALE;
+            case FEMALE:
+                return User.Gender.FEMALE;
+            case UNSPECIFIED:
+            default:
+                return User.Gender.UNSPECIFIED;
+        }
     }
 }

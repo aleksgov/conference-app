@@ -1,6 +1,7 @@
 package com.example.conference_app.server.model;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
@@ -8,6 +9,7 @@ import java.util.Objects;
 
 @Setter
 @Getter
+@NoArgsConstructor
 public class ParticipantArticleId implements Serializable {
     private Long participantId;
     private Long articleId;

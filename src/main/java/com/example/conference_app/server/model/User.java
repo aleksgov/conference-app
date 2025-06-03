@@ -2,6 +2,8 @@ package com.example.conference_app.server.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import java.time.LocalDate;
+
 
 @Getter
 @Setter
@@ -23,11 +25,27 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
+    @Column(nullable = false)
+    private String fullName;
+
+    private LocalDate dateOfBirth;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Gender gender = Gender.UNSPECIFIED;
+
+    @Column(nullable = true)
+    private String phone;
+
     @OneToOne
-    @JoinColumn(name = "participant_id")
+    @JoinColumn(name = "participant_id", unique = true)
     private Participant participant;
 
     public enum Role {
         ADMIN, USER
+    }
+
+    public enum Gender {
+        MALE, FEMALE, OTHER, UNSPECIFIED
     }
 }

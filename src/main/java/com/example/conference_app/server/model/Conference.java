@@ -22,4 +22,7 @@ public class Conference extends BaseEntity {
 
     @OneToMany(mappedBy = "conference", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Section> sections = new ArrayList<>();
+
+    @OneToMany(mappedBy = "conference", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ConferenceApplication> applications = new ArrayList<>();
 }

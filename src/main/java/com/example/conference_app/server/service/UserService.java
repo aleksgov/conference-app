@@ -4,6 +4,7 @@ import com.example.conference_app.server.model.User;
 import com.example.conference_app.server.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
+import java.time.LocalDate;
 
 @Service
 public class UserService {
@@ -24,11 +25,15 @@ public class UserService {
         return user;
     }
 
-    public User register(String email, String password) {
+    public User register(String email, String password, String fullName, LocalDate dateOfBirth, String phone, User.Gender gender) {
         User user = new User();
         user.setEmail(email);
         user.setPasswordHash(BCrypt.hashpw(password, BCrypt.gensalt()));
         user.setRole(User.Role.USER);
+        user.setFullName(fullName);
+        user.setDateOfBirth(dateOfBirth);
+        user.setPhone(phone);
+        user.setGender(gender != null ? gender : User.Gender.UNSPECIFIED);
         return userRepository.save(user);
     }
 }

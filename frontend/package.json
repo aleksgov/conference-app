@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",
+    "@tailwindcss/forms": "^0.5.10",
     "concurrently": "^9.1.2",
     "dotenv": "^16.5.0",
     "electron": "^36.3.1",

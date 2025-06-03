@@ -18,5 +18,8 @@ export default {
             },
         },
     },
-  plugins: [flowbiteReact],
+  plugins: [
+      flowbiteReact,
+      require('@tailwindcss/forms')
+  ],
 };

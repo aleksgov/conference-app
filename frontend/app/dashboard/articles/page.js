@@ -16,6 +16,11 @@ const ArticlesPage = () => {
         },
     ];
 
+    const filters = [
+        { key: 'section.conference.name', title: 'Конференция' },
+        { key: 'section.name', title: 'Секция' },
+    ];
+
     const addLink = '/dashboard/articles/create';
 
     return (
@@ -24,6 +29,7 @@ const ArticlesPage = () => {
             columns={columns}
             addLink={addLink}
             idKey="id"
+            filters={filters}
         />
     );
 };

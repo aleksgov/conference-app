@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Dropdown } from 'flowbite-react';
 import DeleteModal from "@/components/DeleteModal";
 
-const AdvancedTable = ({ endpoint, columns, addLink, idKey = 'conferenceId', filters = [] }) => {
+const AdvancedTable = ({ endpoint, columns, addLink, idKey = 'conferenceId', filters }) => {
     const [data, setData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -69,6 +69,8 @@ const AdvancedTable = ({ endpoint, columns, addLink, idKey = 'conferenceId', fil
     }, [endpoint]);
 
     useEffect(() => {
+        if (!filters) return;
+
         const newFilterOptions = {};
 
         filters.forEach(f => {
@@ -309,7 +311,7 @@ const AdvancedTable = ({ endpoint, columns, addLink, idKey = 'conferenceId', fil
                                 </div>
                             </div>
 
-                            {filters.map(filter => {
+                            {filters?.map(filter => {
                                 const keyPath = filter.key;
                                 const title = filter.title;
                                 const options = filterOptions[keyPath] || [];
@@ -326,8 +328,18 @@ const AdvancedTable = ({ endpoint, columns, addLink, idKey = 'conferenceId', fil
                                                 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white
                                                 dark:hover:bg-gray-700"
                                             >
+                                                <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
+                                                     className="h-4 w-4 mr-2 text-gray-400" viewBox="0 0 20 20"
+                                                     fill="currentColor">
+                                                     <path fillRule="evenodd"
+                                                          d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1
+                                                          0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+                                                          clipRule="evenodd"
+                                                     />
+                                                </svg>
                                                 Фильтр
-                                                <svg className="-ml-1 mr-1.5 w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                <svg className="ml-1 -mr-1.5 w-5 h-5" fill="currentColor"
+                                                     viewBox="0 0 20 20">
                                                     <path
                                                         clipRule="evenodd"
                                                         fillRule="evenodd"
@@ -344,7 +356,7 @@ const AdvancedTable = ({ endpoint, columns, addLink, idKey = 'conferenceId', fil
                                     >
                                         <div className="p-3 bg-white dark:bg-gray-700">
                                             <h6 className="mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                                                { title }
+                                            { title }
                                             </h6>
                                             <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-200">
                                                 {options.map(option => {

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from "next/navigation";
 
 import LoginIcon from '@/icons/login.svg';
 import ConferenceIcon from '@/icons/contact.svg';
@@ -10,7 +11,7 @@ import AboutIcon from '@/icons/about.svg';
 import LogoPng from "@/icons/logo.png";
 import AdminIcon from '@/icons/admin.svg';
 import ProfileAvatar from './ProfileAvatar';
-import {DarkThemeToggle} from "flowbite-react";
+import { DarkThemeToggle } from "flowbite-react";
 
 export default function Navbar() {
     const [user, setUser] = useState(null);
@@ -19,6 +20,8 @@ export default function Navbar() {
     const [isAdminDropdownOpen, setIsAdminDropdownOpen] = useState(false);
     const profileDropdownRef = useRef(null);
     const adminDropdownRef = useRef(null);
+
+    const pathname = usePathname();
 
     useEffect(() => {
         // проверка данных пользователя на статус в системе
@@ -31,9 +34,11 @@ export default function Navbar() {
                 console.error('Error parsing user data:', e);
                 setUser(null);
             }
+        } else {
+            setUser(null);
         }
         setIsLoading(false);
-    }, []);
+    }, [pathname]);
 
     const isLoggedIn = !!user;
     const isAdmin = user?.role === 'ADMIN';

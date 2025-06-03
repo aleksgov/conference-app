@@ -28,8 +28,7 @@ const LoginForm = (props) => {
             document.cookie = `token=${userData.token}; Path=/; Max-Age=${60 * 60 * 24};`;
             // сохраняем информацию о пользователе
             localStorage.setItem('user', JSON.stringify(userData.user));
-            // перенаправляем на /dashboard
-            router.push('/dashboard');
+            router.push('/');
         } catch (err) {
             setError(err.message);
         }

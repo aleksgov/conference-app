@@ -13,6 +13,10 @@ const SectionsPage = () => {
         },
     ];
 
+    const filters = [
+        { key: 'conference.name', title: 'Конференция' },
+    ];
+
     const addLink = '/dashboard/sections/create';
 
     return (
@@ -21,6 +25,7 @@ const SectionsPage = () => {
             columns={columns}
             addLink={addLink}
             idKey="id"
+            filters={filters}
         />
     );
 };

@@ -5,6 +5,7 @@ import com.example.conference_app.server.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -23,6 +24,10 @@ public class UserService {
         }
 
         return user;
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
     public User register(String email, String password, String fullName, LocalDate dateOfBirth, String phone, User.Gender gender) {

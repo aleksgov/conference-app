@@ -173,10 +173,10 @@ async function createTables() {
         await client.query(`
             CREATE TABLE IF NOT EXISTS Conference_Application (
                 application_id SERIAL PRIMARY KEY,
-                participant_id INT REFERENCES Participant(participant_id) ON DELETE CASCADE,
+                user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
                 conference_id INT REFERENCES Conference(conference_id) ON DELETE CASCADE,
                 section_id INT REFERENCES Section(section_id) ON DELETE SET NULL,
-                article_id INT REFERENCES Article(article_id) ON DELETE CASCADE,
+                article_title TEXT NOT NULL,
                 status application_status_enum NOT NULL DEFAULT 'PENDING',
                 submitted_at TIMESTAMP NOT NULL DEFAULT NOW(),
                 reviewed_at TIMESTAMP NULL,

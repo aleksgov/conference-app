@@ -1,25 +1,21 @@
 package com.example.conference_app.server.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDateTime;
 
-@JsonIgnoreProperties({"participant", "conference", "section", "article"})
 @Setter
 @Getter
 @NoArgsConstructor
 @Entity
-public class ConferenceApplication {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Table(name = "conference_application")
+public class ConferenceApplication extends BaseEntity {
 
     @ManyToOne
-    @JoinColumn(name = "participant_id")
-    private Participant participant;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "conference_id")
@@ -29,15 +25,14 @@ public class ConferenceApplication {
     @JoinColumn(name = "section_id")
     private Section section;
 
-    @ManyToOne
-    @JoinColumn(name = "article_id")
-    private Article article;
+    @Column(nullable = false)
+    private String articleTitle;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ApplicationStatus status = ApplicationStatus.PENDING;
 
-    private LocalDateTime submittedAt;
+    private LocalDateTime submittedAt = LocalDateTime.now();
     private LocalDateTime reviewedAt;
     private String adminComment;
 

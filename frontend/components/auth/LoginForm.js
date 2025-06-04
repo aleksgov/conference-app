@@ -15,6 +15,7 @@ const LoginForm = (props) => {
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify({ email, password }),
             });
 
@@ -27,6 +28,7 @@ const LoginForm = (props) => {
             // авторизация на 1 день
             document.cookie = `token=${userData.token}; Path=/; Max-Age=${60 * 60 * 24};`;
             // сохраняем информацию о пользователе
+            localStorage.setItem('token', userData.token);
             localStorage.setItem('user', JSON.stringify(userData.user));
             router.push('/');
         } catch (err) {

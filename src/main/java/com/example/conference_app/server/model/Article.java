@@ -24,7 +24,4 @@ public class Article extends BaseEntity {
 
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ParticipantArticle> articlesLink = new ArrayList<>();
-
-    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ConferenceApplication> applications = new ArrayList<>();
 }

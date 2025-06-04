@@ -10,6 +10,8 @@ const SectionsPage = () => {
         {
             key: 'conference.name',
             title: 'Конференция',
+            linkTo: '/dashboard/conferences',
+            linkIdPath: 'conference.id'
         },
     ];
 

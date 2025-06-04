@@ -152,27 +152,52 @@ const AdvancedTable = ({ endpoint, columns, addLink, idKey = 'conferenceId', fil
             return <span className="text-gray-400">Не указано</span>;
         }
 
-        switch (column.type) {
-            case 'id':
-                return <span className="font-medium">{value}</span>;
-            case 'name':
-                return <span className="font-semibold">{value}</span>;
-            case 'date':
-                try {
-                    const dt = new Date(value);
-                    return <span>{dt.toLocaleDateString('ru-RU')}</span>;
-                } catch {
+        const isClickable = column.linkTo;
+
+        const renderValue = () => {
+            switch (column.type) {
+                case 'id':
+                    return <span className="font-medium">{value}</span>;
+                case 'name':
+                    return <span className="font-semibold">{value}</span>;
+                case 'date':
+                    try {
+                        const dt = new Date(value);
+                        return <span>{dt.toLocaleDateString('ru-RU')}</span>;
+                    } catch {
+                        return <span>{value}</span>;
+                    }
+                case 'time':
+                    try {
+                        return <span>{value.substring(0, 5)}</span>;
+                    } catch {
+                        return <span>{value}</span>;
+                    }
+                default:
                     return <span>{value}</span>;
-                }
-            case 'time':
-                try {
-                    return <span>{value.substring(0, 5)}</span>;
-                } catch {
-                    return <span>{value}</span>;
-                }
-            default:
-                return <span>{value}</span>;
+            }
+        };
+
+        if (isClickable) {
+            const linkId = column.getLinkId ? column.getLinkId(item) : getNestedValue(item, column.linkIdPath);
+
+            console.log('Link ID for', column.key, ':', linkId);
+
+            if (linkId) {
+                return (
+                    <Link
+                        href={`${column.linkTo}/${linkId}`}
+                        className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:underline cursor-pointer"
+                    >
+                        {renderValue()}
+                    </Link>
+                );
+            } else {
+                console.warn('No linkId found for column', column.key, 'with linkIdPath', column.linkIdPath);
+            }
         }
+
+        return renderValue();
     };
 
     const handleSort = (key) => {

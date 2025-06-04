@@ -7,10 +7,14 @@ const AuditoriumsPage = () => {
         {
             key: 'section.name',
             title: 'Секция',
+            linkTo: '/dashboard/sections',
+            linkIdPath: 'section.id'
         },
         {
             key: 'section.conference.name',
             title: 'Конференция',
+            linkTo: '/dashboard/conferences',
+            linkIdPath: 'section.conference.id'
         },
     ];
 

@@ -41,4 +41,27 @@ public class UserService {
         user.setGender(gender != null ? gender : User.Gender.UNSPECIFIED);
         return userRepository.save(user);
     }
+
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    public User updateUserProfile(
+        String email,
+        String fullName,
+        LocalDate dateOfBirth,
+        String phone,
+        User.Gender gender
+    ) {
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (fullName != null) user.setFullName(fullName);
+        if (dateOfBirth != null) user.setDateOfBirth(dateOfBirth);
+        if (phone != null) user.setPhone(phone);
+        if (gender != null) user.setGender(gender);
+
+        return userRepository.save(user);
+    }
 }

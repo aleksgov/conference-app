@@ -1,18 +1,8 @@
-// app/profile/page.jsx
 "use client";
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-    Card,
-    Button,
-    Label,
-    TextInput,
-    Select,
-    Datepicker,
-    Spinner,
-    Alert
-} from 'flowbite-react';
+import { Card, Button, Label, TextInput, Select, Datepicker, Spinner, Alert } from 'flowbite-react';
 import { HiInformationCircle } from 'react-icons/hi';
 
 const ProfilePage = () => {
@@ -23,7 +13,6 @@ const ProfilePage = () => {
         phone: '',
         birthdate: null,
         gender: 'UNSPECIFIED',
-        organization: ''
     });
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
@@ -34,24 +23,38 @@ const ProfilePage = () => {
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                // В реальном приложении здесь будет запрос к API
-                // const response = await fetch('/api/profile');
-                // const data = await response.json();
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    router.push('/login');
+                    return;
+                }
 
-                // Имитация запроса
-                setTimeout(() => {
-                    setUserData({
-                        fullName: 'Иванов Иван Иванович',
-                        email: 'ivanov@example.com',
-                        phone: '+7 900 123 4567',
-                        birthdate: new Date('1990-05-15'),
-                        gender: 'MALE',
-                        organization: 'МГУ'
-                    });
-                    setIsLoading(false);
-                }, 800);
+                const response = await fetch('/api/profile', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user');
+                        router.push('/login');
+                    }
+                    throw new Error('Ошибка загрузки данных профиля');
+                }
+
+                const data = await response.json();
+                setUserData({
+                    fullName: data.fullName,
+                    email: data.email,
+                    phone: data.phone,
+                    birthdate: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
+                    gender: data.gender || 'UNSPECIFIED'
+                });
+                setIsLoading(false);
             } catch (error) {
-                setErrorMessage('Ошибка загрузки данных профиля');
+                setErrorMessage(error.message);
                 setIsLoading(false);
             }
         };
@@ -75,22 +78,50 @@ const ProfilePage = () => {
         setSuccessMessage('');
 
         try {
-            // В реальном приложении здесь будет запрос к API
-            // const response = await fetch('/api/profile', {
-            //   method: 'PUT',
-            //   headers: { 'Content-Type': 'application/json' },
-            //   body: JSON.stringify(userData)
-            // });
+            const token = localStorage.getItem('token');
+            if (!token) {
+                router.push('/login');
+                return;
+            }
 
-            // Имитация сохранения
-            setTimeout(() => {
-                setSuccessMessage('Профиль успешно обновлен!');
-                setIsSaving(false);
-            }, 1000);
+            const response = await fetch('/api/profile', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    fullName: userData.fullName,
+                    phone: userData.phone,
+                    dateOfBirth: userData.birthdate?.toISOString().split('T')[0],
+                    gender: userData.gender
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Ошибка при сохранении профиля');
+            }
+
+            const updatedUser = {
+                ...JSON.parse(localStorage.getItem('user')),
+                fullName: userData.fullName,
+                phone: userData.phone
+            };
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+
+            setSuccessMessage('Профиль успешно обновлен!');
         } catch (error) {
-            setErrorMessage('Ошибка при сохранении профиля');
+            setErrorMessage(error.message);
+        } finally {
             setIsSaving(false);
         }
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        router.push('/login');
     };
 
     if (isLoading) {
@@ -149,15 +180,25 @@ const ProfilePage = () => {
                                         name="email"
                                         type="email"
                                         value={userData.email}
-                                        onChange={handleChange}
-                                        placeholder="name@example.com"
-                                        required
-                                        className="mt-1"
+                                        readOnly
+                                        className="mt-1 bg-gray-100 dark:bg-gray-700 cursor-not-allowed"
                                     />
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+                                <div className="z-20">
+                                    <Label htmlFor="birthdate" value="Дата рождения" className="dark:text-gray-300" />
+                                    <div className="relative z-20">
+                                        <Datepicker
+                                            id="birthdate"
+                                            value={userData.birthdate}
+                                            onChange={handleDateChange}
+                                            className="mt-1 w-full z-50"
+                                        />
+                                    </div>
+                                </div>
+
                                 <div>
                                     <Label htmlFor="phone" value="Телефон" className="dark:text-gray-300" />
                                     <TextInput
@@ -170,31 +211,9 @@ const ProfilePage = () => {
                                         className="mt-1"
                                     />
                                 </div>
-
-                                <div>
-                                    <Label htmlFor="organization" value="Организация" className="dark:text-gray-300" />
-                                    <TextInput
-                                        id="organization"
-                                        name="organization"
-                                        value={userData.organization}
-                                        onChange={handleChange}
-                                        placeholder="Название организации"
-                                        className="mt-1"
-                                    />
-                                </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <Label htmlFor="birthdate" value="Дата рождения" className="dark:text-gray-300" />
-                                    <Datepicker
-                                        id="birthdate"
-                                        value={userData.birthdate}
-                                        onSelectedDateChanged={handleDateChange}
-                                        className="mt-1 w-full"
-                                    />
-                                </div>
-
                                 <div>
                                     <Label htmlFor="gender" value="Пол" className="dark:text-gray-300" />
                                     <Select
@@ -213,20 +232,21 @@ const ProfilePage = () => {
                             </div>
 
                             <div className="flex justify-between pt-6 border-t border-gray-200 dark:border-gray-700">
-                                <Button
-                                    color="light"
-                                    onClick={() => router.push('/')}
-                                    disabled={isSaving}
-                                >
-                                    На главную
-                                </Button>
+                                <div className="flex gap-3">
+                                    <Button color="light" onClick={() => router.push('/')} disabled={isSaving}>
+                                        На главную
+                                    </Button>
+                                    <Button color="failure" onClick={handleLogout} disabled={isSaving}>
+                                        Выйти
+                                    </Button>
+                                </div>
 
                                 <Button type="submit" disabled={isSaving}>
                                     {isSaving ? (
                                         <span className="flex items-center">
-                                  <Spinner size="sm" className="mr-2" />
-                                  Сохранение...
-                                </span>
+                                            <Spinner size="sm" className="mr-2" />
+                                            Сохранение...
+                                        </span>
                                     ) : (
                                         'Сохранить изменения'
                                     )}
@@ -249,7 +269,7 @@ const ProfilePage = () => {
                             <p className="text-gray-600 dark:text-gray-400">
                                 Управляйте видимостью вашего профиля и данных
                             </p>
-                            <Button color="light" className="mt-4">
+                            <Button color="light" className="mt-4 mx-auto">
                                 Настройки приватности
                             </Button>
                         </div>
@@ -266,7 +286,7 @@ const ProfilePage = () => {
                             <p className="text-gray-600 dark:text-gray-400">
                                 Обновите пароль и настройки безопасности
                             </p>
-                            <Button color="light" className="mt-4">
+                            <Button color="light" className="mt-4 mx-auto">
                                 Изменить пароль
                             </Button>
                         </div>
@@ -283,7 +303,7 @@ const ProfilePage = () => {
                             <p className="text-gray-600 dark:text-gray-400">
                                 Просмотр и управление вашими конференциями
                             </p>
-                            <Button color="light" className="mt-4">
+                            <Button color="light" className="mt-4 mx-auto">
                                 Мои конференции
                             </Button>
                         </div>
